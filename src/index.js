@@ -22,7 +22,7 @@ const ROUTE_BILL = "bills/bill";
 const DEFAULT_CONFIG = {
   "translations": [{ key: "en", messages: flatten(messages_en) }],
   "reducers": [{ key: "invoice", reducer }],
-  "core.MainMenu": [LegalAndFinanceMainMenu],
+  //"core.MainMenu": [LegalAndFinanceMainMenu],
   "core.Router": [
     { path: ROUTE_INVOICES, component: InvoicesPage },
     { path: ROUTE_INVOICE + "/:invoice_uuid?", component: InvoicePage },
