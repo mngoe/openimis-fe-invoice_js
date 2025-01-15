@@ -1,13 +1,15 @@
 import React from "react";
 import { injectIntl } from "react-intl";
-import { withModulesManager, formatMessage, TextInput, NumberInput, PublishedComponent } from "@openimis/fe-core";
+import _debounce from "lodash/debounce";
+
 import { Grid } from "@material-ui/core";
 import { withTheme, withStyles } from "@material-ui/core/styles";
+
+import { withModulesManager, formatMessage, TextInput, NumberInput, PublishedComponent } from "@openimis/fe-core";
 import { CONTAINS_LOOKUP, DEFUALT_DEBOUNCE_TIME } from "../constants";
 import InvoiceStatusPicker from "../pickers/InvoiceStatusPicker";
-import SubjectTypePickerBill from "../pickers/SubjectTypePickerBill";
 import ThirdPartyTypePickerBill from "../pickers/ThirdPartyTypePickerBill";
-import _debounce from "lodash/debounce";
+import SubjectTypePickerBill from "../pickers/SubjectTypePickerBill";
 
 const styles = (theme) => ({
   form: {
@@ -23,12 +25,15 @@ const BillFilter = ({ intl, classes, filters, onChangeFilters }) => {
 
   const filterValue = (filterName) => filters?.[filterName]?.value;
 
-  const onChangeFilter = (filterName) => (value) => {
+  const filterTextFieldValue = (filterName) => (filters[filterName] ? filters[filterName].value : "");
+
+  const onChangeDecimalFilter = (filterName) => (value) => {
+    const decimalValue = Number(value).toFixed(2);
     debouncedOnChangeFilters([
       {
         id: filterName,
-        value: !!value ? value : null,
-        filter: `${filterName}: ${value}`,
+        value: !!decimalValue ? decimalValue : null,
+        filter: `${filterName}: "${decimalValue}"`,
       },
     ]);
   };
@@ -77,7 +82,7 @@ const BillFilter = ({ intl, classes, filters, onChangeFilters }) => {
         <TextInput
           module="bill"
           label="code"
-          value={filterValue("code")}
+          value={filterTextFieldValue("code")}
           onChange={onChangeStringFilter("code", CONTAINS_LOOKUP)}
         />
       </Grid>
@@ -109,7 +114,8 @@ const BillFilter = ({ intl, classes, filters, onChangeFilters }) => {
               {
                 id: "status",
                 value: value,
-                filter: `status: "${value}"`,
+                // probably won't work on mssql https://openimis.atlassian.net/browse/OP-1546
+                filter: `status: A_${value}`,
               },
             ])
           }
@@ -121,7 +127,7 @@ const BillFilter = ({ intl, classes, filters, onChangeFilters }) => {
           label="amountTotal"
           min={0}
           value={filterValue("amountTotal")}
-          onChange={onChangeFilter("amountTotal")}
+          onChange={onChangeDecimalFilter("amountTotal")}
         />
       </Grid>
     </Grid>

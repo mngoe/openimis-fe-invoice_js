@@ -34,10 +34,12 @@
       "label": "Status",
       "DRAFT": "Draft",
       "VALIDATED": "Validated",
-      "PAYED": "Payed",
+      "PAID": "Paid",
       "CANCELLED": "Cancelled",
       "DELETED": "Deleted",
-      "SUSPENDED": "Suspended"
+      "SUSPENDED": "Suspended",
+      "UNPAID": "Unpaid",
+      "RECONCILIATED": "Reconciliated"
     },
     "currencyTpCode": "Currency Recipient",
     "currencyCode": "Currency",
@@ -151,10 +153,12 @@
       "label": "Status",
       "DRAFT": "Draft",
       "VALIDATED": "Validated",
-      "PAYED": "Payed",
+      "PAID": "Paid",
       "CANCELLED": "Cancelled",
       "DELETED": "Deleted",
-      "SUSPENDED": "Suspended"
+      "SUSPENDED": "Suspended",
+      "UNPAID": "Unpaid",
+      "RECONCILIATED": "Reconciliated"
     },
     "currencyTpCode": "Currency Thirdparty",
     "currencyCode": "Currency",

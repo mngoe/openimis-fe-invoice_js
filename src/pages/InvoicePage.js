@@ -87,7 +87,7 @@ const InvoicePage = ({
 
   const actions = [
     !!invoice &&
-      getEnumValue(invoice?.status) !== STATUS.PAYED && {
+      getEnumValue(invoice?.status) !== STATUS.PAID && {
         doIt: openDeleteInvoiceConfirmDialog,
         icon: <DeleteIcon />,
         tooltip: formatMessage(intl, "invoice", "deleteButtonTooltip"),
@@ -125,7 +125,6 @@ const mapStateToProps = (state, props) => ({
   invoice: state.invoice.invoice,
   errorInvoice: state.invoice.errorInvoice,
   policyHolders: state.policyHolder.policyHolders,
-  confirmed: state.core.confirmed,
   submittingMutation: state.invoice.submittingMutation,
   mutation: state.invoice.mutation,
 });
