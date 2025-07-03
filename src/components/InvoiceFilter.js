@@ -100,7 +100,7 @@ const InvoiceFilter = ({ intl, classes, filters, onChangeFilters }) => {
           withNull
           nullLabel={formatMessage(intl, "invoice", "any")}
           value={filterValue("status")}
-          onChange={onChangeStringFilter("status")}
+          onChange={onChangeFilter("status")}
         />
       </Grid>
       <Grid item xs={2} className={classes.item}>
