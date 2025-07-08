@@ -115,7 +115,7 @@ const BillFilter = ({ intl, classes, filters, onChangeFilters }) => {
                 id: "status",
                 value: value,
                 // probably won't work on mssql https://openimis.atlassian.net/browse/OP-1546
-                filter: `status: A_${value}`,
+                filter: `status: ${value}`,
               },
             ])
           }
