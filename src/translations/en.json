@@ -258,6 +258,15 @@
     "label": "Payments",
     "searcherResultsTitle": "{paymentInvoicesTotalCount} Payments Found"
   },
+  "familyInvoicesPayments": {
+    "title": "{count} Invoices / Payments"
+  },
+  "invoice.familyInvoicesPayments.coveredPeriod": "Covered Period",
+  "invoice.familyInvoicesPayments.invoiceNumber": "Invoice Number",
+  "invoice.familyInvoicesPayments.amountDue": "Amount Due",
+  "invoice.familyInvoicesPayments.paymentAmount": "Payment Amount",
+  "invoice.familyInvoicesPayments.paymentDate": "Payment Date",
+  "invoice.familyInvoicesPayments.balance": "Balance",
   "paymentInvoice": {
     "reconciliationStatus": {
       "label": "Reconciliation Status",
