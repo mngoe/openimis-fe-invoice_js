@@ -63,6 +63,7 @@ const INVOICE_PAYMENT_FULL_PROJECTION = [
   "amountReceived",
   "datePayment",
   "paymentOrigin",
+  "invoice{id, code}",
 ];
 
 const BILL_FULL_PROJECTION = [
