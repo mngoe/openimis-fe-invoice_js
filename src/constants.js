@@ -40,7 +40,7 @@ export const GREATER_OR_EQUAL_LOOKUP = "Gte";
 export const LESS_OR_EQUAL_LOOKUP = "Lte";
 export const CONTAINS_LOOKUP = "Icontains";
 export const STARTS_WITH_LOOKUP = "Istartswith";
-export const ENUM_PREFIX_LENGTH = 2;
+export const ENUM_PREFIX_LENGTH = 0;
 export const STATUS = {
   DRAFT: "A_0",
   VALIDATED: "A_1",
