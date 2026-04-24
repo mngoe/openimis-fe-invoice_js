@@ -459,6 +459,49 @@ export function fetchDetailPaymentInvoices(params) {
   return graphql(payload, ACTION_TYPE.SEARCH_DETAIL_PAYMENT_INVOICE);
 }
 
+export function fetchFamilyInvoicePaymentOverview(params) {
+  const payload = `
+  {
+    familyInvoicePaymentOverview${!!params && params.length ? `(${params.join(",")})` : ""} {
+      totalCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+      items {
+        rowId
+        invoiceId
+        invoiceCode
+        coveredFrom
+        coveredTo
+        amountDue
+        totalInvoicePayments
+        invoiceBalance
+        hasInvoicePayments
+      }
+      totalInvoiceAmount
+      totalPaidAmount
+      globalBalance
+    }
+  }`;
+  return graphql(payload, ACTION_TYPE.SEARCH_FAMILY_INVOICE_PAYMENT_OVERVIEW);
+}
+
+export function fetchInvoicePaymentsDetails(invoiceId) {
+  const payload = `
+  {
+    invoicePayments(invoiceId: "${invoiceId}") {
+      paymentId
+      paymentDate
+      paymentAmount
+      paymentReference
+    }
+  }`;
+  return graphql(payload, ACTION_TYPE.SEARCH_INVOICE_PAYMENTS_OVERVIEW, { invoiceId });
+}
+
 export function createPaymentInvoiceWithDetail(paymentInvoice, subjectId, subjectType, clientMutationLabel) {
   const mutation = formatMutation(
     "createPaymentWithDetailInvoice", 
