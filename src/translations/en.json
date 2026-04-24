@@ -261,12 +261,19 @@
   "familyInvoicesPayments": {
     "title": "{count} Invoices / Payments"
   },
+  "invoice.familyInvoicesPayments.title": "{count} Invoices / Payments",
   "invoice.familyInvoicesPayments.coveredPeriod": "Covered Period",
   "invoice.familyInvoicesPayments.invoiceNumber": "Invoice Number",
   "invoice.familyInvoicesPayments.amountDue": "Amount Due",
-  "invoice.familyInvoicesPayments.paymentAmount": "Payment Amount",
-  "invoice.familyInvoicesPayments.paymentDate": "Payment Date",
-  "invoice.familyInvoicesPayments.balance": "Balance",
+  "invoice.familyInvoicesPayments.totalInvoicePayments": "Total Invoice Payments",
+  "invoice.familyInvoicesPayments.invoiceBalance": "Invoice Balance",
+  "invoice.familyInvoicesPayments.totalInvoiceAmount": "Total Invoices",
+  "invoice.familyInvoicesPayments.totalPaidAmount": "Total Paid",
+  "invoice.familyInvoicesPayments.globalBalance": "Global Balance",
+  "invoice.familyInvoicesPayments.invoicePaymentsSectionTitle": "Invoice Payments",
+  "invoice.familyInvoicesPayments.invoicePaymentDate": "Payment Date",
+  "invoice.familyInvoicesPayments.invoicePaymentAmount": "Payment Amount",
+  "invoice.familyInvoicesPayments.invoicePaymentReference": "Payment Reference",
   "paymentInvoice": {
     "reconciliationStatus": {
       "label": "Reconciliation Status",

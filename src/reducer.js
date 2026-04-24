@@ -36,6 +36,8 @@ export const ACTION_TYPE = {
   CREATE_BILL_EVENT_MESSAGE: "BILL_CREATE_BILL_EVENT_MESSAGE",
   SEARCH_PAYMENT_INVOICE: "PAYMENTINVOICE__PAYMENT_INVOICE",
   SEARCH_DETAIL_PAYMENT_INVOICE: "PAYMENTINVOICE__DETAIL_PAYMENT_INVOICE",
+  SEARCH_FAMILY_INVOICE_PAYMENT_OVERVIEW: "INVOICE_FAMILY_INVOICE_PAYMENT_OVERVIEW",
+  SEARCH_INVOICE_PAYMENTS_OVERVIEW: "INVOICE_PAYMENTS_OVERVIEW",
   CREATE_PAYMENT_INVOICE_WITH_DETAIL: "PAYMENTINVOICE_CREATE_PAYMENT_INVOICE_WITH_DETAIL",
   DELETE_PAYMENT_INVOICE: "PAYMENTINVOICE_DELETE_PAYMENT_INVOICE",
 };
@@ -118,6 +120,18 @@ function reducer(
     detailPaymentInvoices: [],
     detailPaymentInvoicesPageInfo: {},
     detailPaymentInvoicesTotalCount: 0,
+    fetchingFamilyInvoicePaymentOverview: false,
+    fetchedFamilyInvoicePaymentOverview: false,
+    errorFamilyInvoicePaymentOverview: null,
+    familyInvoicePaymentOverviewItems: [],
+    familyInvoicePaymentOverviewPageInfo: {},
+    familyInvoicePaymentOverviewTotalCount: 0,
+    totalInvoiceAmount: 0,
+    totalPaidAmount: 0,
+    globalBalance: 0,
+    invoicePaymentsByInvoiceId: {},
+    isFetchingInvoicePaymentsByInvoiceId: {},
+    errorInvoicePaymentsByInvoiceId: {},
 
     fetchingBillsExport: true,
     fetchedBillsExport: false,
@@ -504,6 +518,90 @@ function reducer(
         fetchingDetailPaymentInvoices: false,
         errorDetailPaymentInvoices: formatServerError(action.payload),
       };
+    case REQUEST(ACTION_TYPE.SEARCH_FAMILY_INVOICE_PAYMENT_OVERVIEW):
+      return {
+        ...state,
+        fetchingFamilyInvoicePaymentOverview: true,
+        fetchedFamilyInvoicePaymentOverview: false,
+        errorFamilyInvoicePaymentOverview: null,
+        familyInvoicePaymentOverviewItems: [],
+        familyInvoicePaymentOverviewPageInfo: {},
+        familyInvoicePaymentOverviewTotalCount: 0,
+        totalInvoiceAmount: 0,
+        totalPaidAmount: 0,
+        globalBalance: 0,
+      };
+    case SUCCESS(ACTION_TYPE.SEARCH_FAMILY_INVOICE_PAYMENT_OVERVIEW):
+      return {
+        ...state,
+        fetchingFamilyInvoicePaymentOverview: false,
+        fetchedFamilyInvoicePaymentOverview: true,
+        errorFamilyInvoicePaymentOverview: formatGraphQLError(action.payload),
+        familyInvoicePaymentOverviewItems:
+          action.payload?.data?.familyInvoicePaymentOverview?.items || [],
+        familyInvoicePaymentOverviewPageInfo:
+          action.payload?.data?.familyInvoicePaymentOverview?.pageInfo || {},
+        familyInvoicePaymentOverviewTotalCount:
+          action.payload?.data?.familyInvoicePaymentOverview?.totalCount || 0,
+        totalInvoiceAmount: action.payload?.data?.familyInvoicePaymentOverview?.totalInvoiceAmount || 0,
+        totalPaidAmount: action.payload?.data?.familyInvoicePaymentOverview?.totalPaidAmount || 0,
+        globalBalance: action.payload?.data?.familyInvoicePaymentOverview?.globalBalance || 0 ,
+      };
+    case ERROR(ACTION_TYPE.SEARCH_FAMILY_INVOICE_PAYMENT_OVERVIEW):
+      return {
+        ...state,
+        fetchingFamilyInvoicePaymentOverview: false,
+        errorFamilyInvoicePaymentOverview: formatServerError(action.payload),
+      };
+    case REQUEST(ACTION_TYPE.SEARCH_INVOICE_PAYMENTS_OVERVIEW): {
+      const invoiceId = action.meta?.invoiceId || action.invoiceId;
+      if (!invoiceId) return state;
+      return {
+        ...state,
+        isFetchingInvoicePaymentsByInvoiceId: {
+          ...state.isFetchingInvoicePaymentsByInvoiceId,
+          [invoiceId]: true,
+        },
+        errorInvoicePaymentsByInvoiceId: {
+          ...state.errorInvoicePaymentsByInvoiceId,
+          [invoiceId]: null,
+        },
+      };
+    }
+    case SUCCESS(ACTION_TYPE.SEARCH_INVOICE_PAYMENTS_OVERVIEW): {
+      const invoiceId = action.meta?.invoiceId || action.invoiceId;
+      if (!invoiceId) return state;
+      return {
+        ...state,
+        invoicePaymentsByInvoiceId: {
+          ...state.invoicePaymentsByInvoiceId,
+          [invoiceId]: action.payload?.data?.invoicePayments || [],
+        },
+        isFetchingInvoicePaymentsByInvoiceId: {
+          ...state.isFetchingInvoicePaymentsByInvoiceId,
+          [invoiceId]: false,
+        },
+        errorInvoicePaymentsByInvoiceId: {
+          ...state.errorInvoicePaymentsByInvoiceId,
+          [invoiceId]: formatGraphQLError(action.payload),
+        },
+      };
+    }
+    case ERROR(ACTION_TYPE.SEARCH_INVOICE_PAYMENTS_OVERVIEW): {
+      const invoiceId = action.meta?.invoiceId || action.invoiceId;
+      if (!invoiceId) return state;
+      return {
+        ...state,
+        isFetchingInvoicePaymentsByInvoiceId: {
+          ...state.isFetchingInvoicePaymentsByInvoiceId,
+          [invoiceId]: false,
+        },
+        errorInvoicePaymentsByInvoiceId: {
+          ...state.errorInvoicePaymentsByInvoiceId,
+          [invoiceId]: formatServerError(action.payload),
+        },
+      };
+    }
 
     case REQUEST(ACTION_TYPE.MUTATION):
       return dispatchMutationReq(state, action);
