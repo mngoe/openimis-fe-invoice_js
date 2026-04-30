@@ -16,7 +16,8 @@ import {
   withModulesManager,
   decodeId,
 } from "@openimis/fe-core";
-import { fetchFamilyInvoicePaymentOverview, fetchInvoicePaymentsDetails } from "../actions";
+import { ACTION_TYPE } from "../reducer";
+import { fetchDetailPaymentInvoices, fetchFamilyInvoicePaymentGlobals, fetchFamilyInvoicePaymentOverview } from "../actions";
 import { RIGHT_INVOICE_SEARCH } from "../constants";
 
 const styles = (theme) => ({
@@ -37,6 +38,10 @@ const styles = (theme) => ({
   },
   summaryCell: {
     textAlign: "right",
+  },
+  summaryCellLast: {
+    textAlign: "right",
+    paddingRight: theme.spacing(2),
   },
   expandedBlock: {
     padding: theme.spacing(1, 2, 2, 2),
@@ -64,11 +69,13 @@ class FamilyInvoicesPaymentsOverview extends PagedDataHandler {
 
   componentDidMount() {
     this.query();
+    this.fetchGlobalsIfNeeded();
   }
 
   componentDidUpdate(prevProps) {
     if (this.familyChanged(prevProps)) {
       this.setState({ page: 0, afterCursor: null, beforeCursor: null, expandedInvoiceId: null }, () => this.query());
+      this.fetchGlobalsIfNeeded(prevProps);
     }
   }
 
@@ -80,6 +87,21 @@ class FamilyInvoicesPaymentsOverview extends PagedDataHandler {
     const headInsureeId = this.props.family?.headInsuree?.id ? decodeId(this.props.family.headInsuree.id) : null;
     if (!headInsureeId) return null;
     return [`headInsureeId: "${headInsureeId}"`];
+  };
+
+  globalsParams = () => this.queryPrms();
+
+  globalsParamsKey = (params) => (params || []).join("|");
+
+  fetchGlobalsIfNeeded = (prevProps) => {
+    const params = this.globalsParams();
+    if (!params) return;
+    const paramsKey = this.globalsParamsKey(params);
+    const prevKey = prevProps?.family?.headInsuree?.id
+      ? this.globalsParamsKey([`headInsureeId: "${decodeId(prevProps.family.headInsuree.id)}"`])
+      : null;
+    if (prevKey === paramsKey && this.props.familyInvoicePaymentGlobalsParamsKey === paramsKey) return;
+    this.props.fetchFamilyInvoicePaymentGlobals(params, paramsKey);
   };
 
   onToggleInvoiceDetails = async (selectedRows) => {
@@ -100,7 +122,8 @@ class FamilyInvoicesPaymentsOverview extends PagedDataHandler {
 
     const cachedInvoicePayments = this.props.invoicePaymentsByInvoiceId?.[invoiceId];
     if (!cachedInvoicePayments) {
-      await this.props.fetchInvoicePaymentsDetails(invoiceId);
+      const params = [`subjectType: "invoice"`, `subjectId: "${invoiceId}"`, "isDeleted: false", "payment_IsDeleted: false"];
+      await this.props.fetchInvoicePaymentsDetails(invoiceId, params);
     }
   };
 
@@ -114,6 +137,7 @@ class FamilyInvoicesPaymentsOverview extends PagedDataHandler {
     "invoice.familyInvoicesPayments.invoiceNumber",
     "invoice.familyInvoicesPayments.amountDue",
     "invoice.familyInvoicesPayments.totalInvoicePayments",
+    "invoice.familyInvoicesPayments.lastPayment",
     "invoice.familyInvoicesPayments.invoiceBalance",
   ];
 
@@ -122,6 +146,10 @@ class FamilyInvoicesPaymentsOverview extends PagedDataHandler {
     (invoiceRow) => invoiceRow?.invoiceCode || "",
     (invoiceRow) => formatAmount(this.props.intl, invoiceRow?.amountDue || 0),
     (invoiceRow) => formatAmount(this.props.intl, invoiceRow?.totalInvoicePayments || 0),
+    (invoiceRow) =>
+      invoiceRow?.lastPayment
+        ? formatDateFromISO(this.props.modulesManager, this.props.intl, invoiceRow.lastPayment)
+        : "",
     (invoiceRow) => formatAmount(this.props.intl, invoiceRow?.invoiceBalance || 0),
   ];
 
@@ -129,15 +157,21 @@ class FamilyInvoicesPaymentsOverview extends PagedDataHandler {
     "invoice.familyInvoicesPayments.invoicePaymentDate",
     "invoice.familyInvoicesPayments.invoicePaymentAmount",
     "invoice.familyInvoicesPayments.invoicePaymentReference",
+    "invoice.familyInvoicesPayments.invoicePaymentOrigin",
+    "invoice.familyInvoicesPayments.invoicePaymentCodeReceipt",
+    "invoice.familyInvoicesPayments.invoicePaymentPayerRef",
   ];
 
   invoicePaymentFormatters = [
     (invoicePayment) =>
-      invoicePayment?.paymentDate
-        ? formatDateFromISO(this.props.modulesManager, this.props.intl, invoicePayment.paymentDate)
+      invoicePayment?.payment?.datePayment
+        ? formatDateFromISO(this.props.modulesManager, this.props.intl, invoicePayment.payment?.datePayment)
         : "",
-    (invoicePayment) => formatAmount(this.props.intl, invoicePayment?.paymentAmount || 0),
-    (invoicePayment) => invoicePayment?.paymentReference || "",
+    (invoicePayment) => formatAmount(this.props.intl, invoicePayment?.amount || 0),
+    (invoicePayment) => invoicePayment?.payment?.codeExt || "",
+    (invoicePayment) => invoicePayment?.payment?.paymentOrigin || "",
+    (invoicePayment) => invoicePayment?.payment?.codeReceipt || "",
+    (invoicePayment) => invoicePayment?.payment?.payerRef || "",
   ];
 
   formatCoveredPeriod = (invoiceRow) => {
@@ -154,11 +188,16 @@ class FamilyInvoicesPaymentsOverview extends PagedDataHandler {
     const invoicePayments = this.props.invoicePaymentsByInvoiceId?.[expandedInvoiceId] || [];
     const isFetchingInvoicePayments = this.props.isFetchingInvoicePaymentsByInvoiceId?.[expandedInvoiceId];
     const invoicePaymentsError = this.props.errorInvoicePaymentsByInvoiceId?.[expandedInvoiceId];
+    const expandedInvoice = (this.props.invoiceRows || []).find((row) => row?.invoiceId === expandedInvoiceId);
+    const expandedInvoiceNumber = expandedInvoice?.invoiceCode || expandedInvoiceId;
 
     return (
       <div className={this.props.classes.expandedBlock}>
         <Typography className={this.props.classes.expandedTitle}>
-          {formatMessage(this.props.intl, "invoice", "familyInvoicesPayments.invoicePaymentsSectionTitle")}
+          {formatMessageWithValues(this.props.intl, "invoice", "familyInvoicesPayments.invoicePaymentsSectionTitle", {
+            invoiceNumber: expandedInvoiceNumber,
+            count: invoicePayments.length,
+          })}
         </Typography>
         <Table
           module="invoice"
@@ -215,7 +254,7 @@ class FamilyInvoicesPaymentsOverview extends PagedDataHandler {
                   </strong>
                 </Typography>
               </Grid>
-              <Grid item xs={4} className={this.props.classes.summaryCell}>
+              <Grid item xs={4} className={this.props.classes.summaryCellLast}>
                 <Typography className={this.props.classes.summaryText}>
                   <strong>
                     {`${formatMessage(this.props.intl, "invoice", "familyInvoicesPayments.globalBalance")}: ${formatAmount(this.props.intl, globalBalance || 0)}`}
@@ -270,6 +309,7 @@ const mapStateToProps = (state) => ({
   totalInvoiceAmount: state.invoice.totalInvoiceAmount || 0,
   totalPaidAmount: state.invoice.totalPaidAmount || 0,
   globalBalance: state.invoice.globalBalance || 0,
+  familyInvoicePaymentGlobalsParamsKey: state.invoice.familyInvoicePaymentGlobalsParamsKey,
   invoicePaymentsByInvoiceId: state.invoice.invoicePaymentsByInvoiceId || {},
   isFetchingInvoicePaymentsByInvoiceId: state.invoice.isFetchingInvoicePaymentsByInvoiceId || {},
   errorInvoicePaymentsByInvoiceId: state.invoice.errorInvoicePaymentsByInvoiceId || {},
@@ -277,7 +317,10 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
   fetch: (_modulesManager, params) => dispatch(fetchFamilyInvoicePaymentOverview(params)),
-  fetchInvoicePaymentsDetails: async (invoiceId) => dispatch(fetchInvoicePaymentsDetails(invoiceId)),
+  fetchFamilyInvoicePaymentGlobals: (params, paramsKey) =>
+    dispatch(fetchFamilyInvoicePaymentGlobals(params, { paramsKey })),
+  fetchInvoicePaymentsDetails: async (invoiceId, params) =>
+    dispatch(fetchDetailPaymentInvoices(params, ACTION_TYPE.SEARCH_INVOICE_PAYMENTS_OVERVIEW, { invoiceId })),
 });
 
 export default withModulesManager(
