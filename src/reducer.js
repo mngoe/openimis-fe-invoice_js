@@ -37,6 +37,7 @@ export const ACTION_TYPE = {
   SEARCH_PAYMENT_INVOICE: "PAYMENTINVOICE__PAYMENT_INVOICE",
   SEARCH_DETAIL_PAYMENT_INVOICE: "PAYMENTINVOICE__DETAIL_PAYMENT_INVOICE",
   SEARCH_FAMILY_INVOICE_PAYMENT_OVERVIEW: "INVOICE_FAMILY_INVOICE_PAYMENT_OVERVIEW",
+  SEARCH_FAMILY_INVOICE_PAYMENT_GLOBALS: "INVOICE_FAMILY_INVOICE_PAYMENT_GLOBALS",
   SEARCH_INVOICE_PAYMENTS_OVERVIEW: "INVOICE_PAYMENTS_OVERVIEW",
   CREATE_PAYMENT_INVOICE_WITH_DETAIL: "PAYMENTINVOICE_CREATE_PAYMENT_INVOICE_WITH_DETAIL",
   DELETE_PAYMENT_INVOICE: "PAYMENTINVOICE_DELETE_PAYMENT_INVOICE",
@@ -129,6 +130,10 @@ function reducer(
     totalInvoiceAmount: 0,
     totalPaidAmount: 0,
     globalBalance: 0,
+    fetchingFamilyInvoicePaymentGlobals: false,
+    fetchedFamilyInvoicePaymentGlobals: false,
+    errorFamilyInvoicePaymentGlobals: null,
+    familyInvoicePaymentGlobalsParamsKey: null,
     invoicePaymentsByInvoiceId: {},
     isFetchingInvoicePaymentsByInvoiceId: {},
     errorInvoicePaymentsByInvoiceId: {},
@@ -527,9 +532,6 @@ function reducer(
         familyInvoicePaymentOverviewItems: [],
         familyInvoicePaymentOverviewPageInfo: {},
         familyInvoicePaymentOverviewTotalCount: 0,
-        totalInvoiceAmount: 0,
-        totalPaidAmount: 0,
-        globalBalance: 0,
       };
     case SUCCESS(ACTION_TYPE.SEARCH_FAMILY_INVOICE_PAYMENT_OVERVIEW):
       return {
@@ -543,15 +545,36 @@ function reducer(
           action.payload?.data?.familyInvoicePaymentOverview?.pageInfo || {},
         familyInvoicePaymentOverviewTotalCount:
           action.payload?.data?.familyInvoicePaymentOverview?.totalCount || 0,
-        totalInvoiceAmount: action.payload?.data?.familyInvoicePaymentOverview?.totalInvoiceAmount || 0,
-        totalPaidAmount: action.payload?.data?.familyInvoicePaymentOverview?.totalPaidAmount || 0,
-        globalBalance: action.payload?.data?.familyInvoicePaymentOverview?.globalBalance || 0 ,
       };
     case ERROR(ACTION_TYPE.SEARCH_FAMILY_INVOICE_PAYMENT_OVERVIEW):
       return {
         ...state,
         fetchingFamilyInvoicePaymentOverview: false,
         errorFamilyInvoicePaymentOverview: formatServerError(action.payload),
+      };
+    case REQUEST(ACTION_TYPE.SEARCH_FAMILY_INVOICE_PAYMENT_GLOBALS):
+      return {
+        ...state,
+        fetchingFamilyInvoicePaymentGlobals: true,
+        fetchedFamilyInvoicePaymentGlobals: false,
+        errorFamilyInvoicePaymentGlobals: null,
+        familyInvoicePaymentGlobalsParamsKey: action.meta?.paramsKey || null,
+      };
+    case SUCCESS(ACTION_TYPE.SEARCH_FAMILY_INVOICE_PAYMENT_GLOBALS):
+      return {
+        ...state,
+        fetchingFamilyInvoicePaymentGlobals: false,
+        fetchedFamilyInvoicePaymentGlobals: true,
+        errorFamilyInvoicePaymentGlobals: formatGraphQLError(action.payload),
+        totalInvoiceAmount: action.payload?.data?.familyInvoicePaymentGlobals?.totalInvoiceAmount || 0,
+        totalPaidAmount: action.payload?.data?.familyInvoicePaymentGlobals?.totalPaidAmount || 0,
+        globalBalance: action.payload?.data?.familyInvoicePaymentGlobals?.globalBalance || 0,
+      };
+    case ERROR(ACTION_TYPE.SEARCH_FAMILY_INVOICE_PAYMENT_GLOBALS):
+      return {
+        ...state,
+        fetchingFamilyInvoicePaymentGlobals: false,
+        errorFamilyInvoicePaymentGlobals: formatServerError(action.payload),
       };
     case REQUEST(ACTION_TYPE.SEARCH_INVOICE_PAYMENTS_OVERVIEW): {
       const invoiceId = action.meta?.invoiceId || action.invoiceId;
@@ -575,7 +598,7 @@ function reducer(
         ...state,
         invoicePaymentsByInvoiceId: {
           ...state.invoicePaymentsByInvoiceId,
-          [invoiceId]: action.payload?.data?.invoicePayments || [],
+          [invoiceId]: parseData(action.payload?.data?.detailPaymentInvoice),
         },
         isFetchingInvoicePaymentsByInvoiceId: {
           ...state.isFetchingInvoicePaymentsByInvoiceId,
