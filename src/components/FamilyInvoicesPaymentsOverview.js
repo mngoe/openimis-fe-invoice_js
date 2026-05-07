@@ -35,13 +35,18 @@ const styles = (theme) => ({
   },
   summaryRow: {
     width: "100%",
+    display: "flex",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    gap: theme.spacing(6),
+    paddingRight: theme.spacing(1),
   },
   summaryCell: {
     textAlign: "right",
+    flex: "0 0 auto",
   },
-  summaryCellLast: {
-    textAlign: "right",
-    paddingRight: theme.spacing(2),
+  summaryValue: {
+    whiteSpace: "nowrap",
   },
   expandedBlock: {
     padding: theme.spacing(1, 2, 2, 2),
@@ -240,23 +245,23 @@ class FamilyInvoicesPaymentsOverview extends PagedDataHandler {
           </Grid>
           <Grid item xs={7}>
             <Grid container className={this.props.classes.summaryRow}>
-              <Grid item xs={4} className={this.props.classes.summaryCell}>
+              <Grid item className={this.props.classes.summaryCell}>
                 <Typography className={this.props.classes.summaryText}>
-                  <strong>
+                  <strong className={this.props.classes.summaryValue}>
                     {`${formatMessage(this.props.intl, "invoice", "familyInvoicesPayments.totalInvoiceAmount")}: ${formatAmount(this.props.intl, totalInvoiceAmount || 0)}`}
                   </strong>
                 </Typography>
               </Grid>
-              <Grid item xs={4} className={this.props.classes.summaryCell}>
+              <Grid item className={this.props.classes.summaryCell}>
                 <Typography className={this.props.classes.summaryText}>
-                  <strong>
+                  <strong className={this.props.classes.summaryValue}>
                     {`${formatMessage(this.props.intl, "invoice", "familyInvoicesPayments.totalPaidAmount")}: ${formatAmount(this.props.intl, totalPaidAmount || 0)}`}
                   </strong>
                 </Typography>
               </Grid>
-              <Grid item xs={4} className={this.props.classes.summaryCellLast}>
+              <Grid item className={this.props.classes.summaryCell}>
                 <Typography className={this.props.classes.summaryText}>
-                  <strong>
+                  <strong className={this.props.classes.summaryValue}>
                     {`${formatMessage(this.props.intl, "invoice", "familyInvoicesPayments.globalBalance")}: ${formatAmount(this.props.intl, globalBalance || 0)}`}
                   </strong>
                 </Typography>
