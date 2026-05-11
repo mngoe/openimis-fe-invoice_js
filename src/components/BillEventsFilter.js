@@ -32,7 +32,7 @@ const BillEventsFilter = ({ intl, classes, filters, onChangeFilters }) => {
             {
               id: filterName,
               value,
-              filter: `${filterName}: "${value}"`,
+              filter: `${filterName}: ${value}`,
             },
           ]);
     };
