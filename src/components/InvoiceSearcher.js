@@ -47,6 +47,7 @@ const InvoiceSearcher = ({
   invoices,
   invoicesPageInfo,
   invoicesTotalCount,
+  cacheFiltersKey
 }) => {
   const [invoiceToDelete, setInvoiceToDelete] = useState(null);
   const [deletedInvoiceUuids, setDeletedInvoiceUuids] = useState([]);
@@ -170,6 +171,7 @@ const InvoiceSearcher = ({
   return (
     <Searcher
       module="invoice"
+      cacheFiltersKey={cacheFiltersKey}
       FilterPane={InvoiceFilter}
       fetch={fetch}
       items={invoices}
