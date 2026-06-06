@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { SelectInput } from "@openimis/fe-core";
 import { formatMessage } from "@openimis/fe-core";
 import { injectIntl } from "react-intl";
@@ -14,16 +14,17 @@ const ThirdpartyTypePicker = ({
   nullLabel = null,
   withLabel = true,
 }) => {
-  const options = THIRDPARTY_TYPE_OPTIONS;
-
-  useEffect(() => {
-    if (withNull) {
-      options.unshift({
-        value: null,
-        label: nullLabel || formatMessage(intl, "invoice", "emptyLabel"),
-      });
-    }
-  }, []);
+  const options = [
+    ...(withNull
+      ? [
+          {
+            value: null,
+            label: nullLabel || formatMessage(intl, "invoice", "emptyLabel"),
+          },
+        ]
+      : []),
+    ...THIRDPARTY_TYPE_OPTIONS,
+  ];
 
   return (
     <SelectInput
