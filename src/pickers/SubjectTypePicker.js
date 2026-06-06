@@ -14,16 +14,15 @@ const SubjectTypePicker = ({
   nullLabel = null,
   withLabel = true,
 }) => {
-  const options = SUBJECT_TYPE_OPTIONS;
-
-  useEffect(() => {
-    if (withNull) {
-      options.unshift({
-        value: null,
-        label: nullLabel || formatMessage(intl, "invoice", "emptyLabel"),
-      });
-    }
-  }, []);
+  const options = [
+    ...(withNull
+      ? [{
+          value: null,
+          label: nullLabel || formatMessage(intl, "invoice", "emptyLabel"),
+        }]
+      : []),
+    ...SUBJECT_TYPE_OPTIONS,
+  ];
 
   return (
     <SelectInput
