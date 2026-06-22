@@ -63,6 +63,7 @@ const INVOICE_PAYMENT_FULL_PROJECTION = [
   "amountReceived",
   "datePayment",
   "paymentOrigin",
+  "invoice{id, code}",
 ];
 
 const BILL_FULL_PROJECTION = [
@@ -148,8 +149,9 @@ const DETAIL_PAYMENT_INVOICE_FULL_PROJECTION = [
   "status",
   "fees",
   "amount",
-  "reconciliationId",
-  "reconciliationDate",
+  "reconcilationId",
+  "reconcilationDate",
+  "payment{ id codeExt codeTp codeReceipt datePayment paymentOrigin payerRef amountReceived }",
 ];
 
 const INVOICE_EVENT_FULL_PROJECTION = ["eventType", "message"];
@@ -453,9 +455,53 @@ export function fetchPaymentInvoices(params) {
   return graphql(payload, ACTION_TYPE.SEARCH_PAYMENT_INVOICE);
 }
 
-export function fetchDetailPaymentInvoices(params) {
+export function fetchDetailPaymentInvoices(
+  params,
+  actionType = ACTION_TYPE.SEARCH_DETAIL_PAYMENT_INVOICE,
+  meta = {},
+) {
   const payload = formatPageQueryWithCount("detailPaymentInvoice", params, DETAIL_PAYMENT_INVOICE_FULL_PROJECTION);
-  return graphql(payload, ACTION_TYPE.SEARCH_DETAIL_PAYMENT_INVOICE);
+  return graphql(payload, actionType, meta);
+}
+
+export function fetchFamilyInvoicePaymentOverview(params) {
+  const payload = `
+  {
+    familyInvoicePaymentOverview${!!params && params.length ? `(${params.join(",")})` : ""} {
+      totalCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+      items {
+        rowId
+        invoiceId
+        invoiceCode
+        coveredFrom
+        coveredTo
+        amountDue
+        totalInvoicePayments
+        invoiceBalance
+        lastPayment
+        hasInvoicePayments
+      }
+    }
+  }`;
+  return graphql(payload, ACTION_TYPE.SEARCH_FAMILY_INVOICE_PAYMENT_OVERVIEW);
+}
+
+export function fetchFamilyInvoicePaymentGlobals(params, meta = {}) {
+  const payload = `
+  {
+    familyInvoicePaymentGlobals${!!params && params.length ? `(${params.join(",")})` : ""} {
+      totalInvoiceAmount
+      totalPaidAmount
+      globalBalance
+    }
+  }`;
+  return graphql(payload, ACTION_TYPE.SEARCH_FAMILY_INVOICE_PAYMENT_GLOBALS, meta);
 }
 
 export function createPaymentInvoiceWithDetail(paymentInvoice, subjectId, subjectType, clientMutationLabel) {
