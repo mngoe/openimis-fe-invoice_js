@@ -154,7 +154,7 @@ const DETAIL_PAYMENT_INVOICE_FULL_PROJECTION = [
   "payment{ id codeExt codeTp codeReceipt datePayment paymentOrigin payerRef amountReceived }",
 ];
 
-const INVOICE_EVENT_FULL_PROJECTION = ["eventType", "message"];
+const INVOICE_EVENT_FULL_PROJECTION = ["eventType", "dateCreated", "message"];
 
 const formatInvoicePaymentGQL = (payment) =>
   `
