@@ -149,13 +149,13 @@ class FamilyInvoicesPaymentsOverview extends PagedDataHandler {
   invoiceFormatters = [
     (invoiceRow) => this.formatCoveredPeriod(invoiceRow),
     (invoiceRow) => invoiceRow?.invoiceCode || "",
-    (invoiceRow) => formatAmount(this.props.intl, invoiceRow?.amountDue || 0),
-    (invoiceRow) => formatAmount(this.props.intl, invoiceRow?.totalInvoicePayments || 0),
+    (invoiceRow) => formatAmount(this.props.modulesManager, this.props.intl, invoiceRow?.amountDue || 0),
+    (invoiceRow) => formatAmount(this.props.modulesManager, this.props.intl, invoiceRow?.totalInvoicePayments || 0),
     (invoiceRow) =>
       invoiceRow?.lastPayment
         ? formatDateFromISO(this.props.modulesManager, this.props.intl, invoiceRow.lastPayment)
         : "",
-    (invoiceRow) => formatAmount(this.props.intl, invoiceRow?.invoiceBalance || 0),
+    (invoiceRow) => formatAmount(this.props.modulesManager, this.props.intl, invoiceRow?.invoiceBalance || 0),
   ];
 
   invoicePaymentHeaders = [
@@ -172,7 +172,7 @@ class FamilyInvoicesPaymentsOverview extends PagedDataHandler {
       invoicePayment?.payment?.datePayment
         ? formatDateFromISO(this.props.modulesManager, this.props.intl, invoicePayment.payment?.datePayment)
         : "",
-    (invoicePayment) => formatAmount(this.props.intl, invoicePayment?.amount || 0),
+    (invoicePayment) => formatAmount(this.props.modulesManager, this.props.intl, invoicePayment?.amount || 0),
     (invoicePayment) => invoicePayment?.payment?.codeExt || "",
     (invoicePayment) => invoicePayment?.payment?.paymentOrigin || "",
     (invoicePayment) => invoicePayment?.payment?.codeReceipt || "",
@@ -248,21 +248,21 @@ class FamilyInvoicesPaymentsOverview extends PagedDataHandler {
               <Grid item className={this.props.classes.summaryCell}>
                 <Typography className={this.props.classes.summaryText}>
                   <strong className={this.props.classes.summaryValue}>
-                    {`${formatMessage(this.props.intl, "invoice", "familyInvoicesPayments.totalInvoiceAmount")}: ${formatAmount(this.props.intl, totalInvoiceAmount || 0)}`}
+                    {`${formatMessage(this.props.intl, "invoice", "familyInvoicesPayments.totalInvoiceAmount")}: ${formatAmount(this.props.modulesManager, this.props.intl, totalInvoiceAmount || 0)}`}
                   </strong>
                 </Typography>
               </Grid>
               <Grid item className={this.props.classes.summaryCell}>
                 <Typography className={this.props.classes.summaryText}>
                   <strong className={this.props.classes.summaryValue}>
-                    {`${formatMessage(this.props.intl, "invoice", "familyInvoicesPayments.totalPaidAmount")}: ${formatAmount(this.props.intl, totalPaidAmount || 0)}`}
+                    {`${formatMessage(this.props.intl, "invoice", "familyInvoicesPayments.totalPaidAmount")}: ${formatAmount(this.props.modulesManager, this.props.intl, totalPaidAmount || 0)}`}
                   </strong>
                 </Typography>
               </Grid>
               <Grid item className={this.props.classes.summaryCell}>
                 <Typography className={this.props.classes.summaryText}>
                   <strong className={this.props.classes.summaryValue}>
-                    {`${formatMessage(this.props.intl, "invoice", "familyInvoicesPayments.globalBalance")}: ${formatAmount(this.props.intl, globalBalance || 0)}`}
+                    {`${formatMessage(this.props.intl, "invoice", "familyInvoicesPayments.globalBalance")}: ${formatAmount(this.props.modulesManager, this.props.intl, globalBalance || 0)}`}
                   </strong>
                 </Typography>
               </Grid>

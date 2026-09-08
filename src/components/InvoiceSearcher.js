@@ -4,6 +4,7 @@ import {
   withModulesManager,
   formatMessage,
   formatMessageWithValues,
+  formatAmount,
   Searcher,
   formatDateFromISO,
   coreConfirm,
@@ -108,7 +109,7 @@ const InvoiceSearcher = ({
       (invoice) => invoice.code,
       (invoice) =>
         !!invoice.dateInvoice ? formatDateFromISO(modulesManager, intl, invoice.dateInvoice) : EMPTY_STRING,
-      (invoice) => invoice.amountTotal,
+      (invoice) => formatAmount(modulesManager, intl, invoice.amountTotal),
       (invoice) => <InvoiceStatusPicker value={invoice?.status} readOnly />,
     ];
     if (rights.includes(RIGHT_INVOICE_UPDATE)) {
