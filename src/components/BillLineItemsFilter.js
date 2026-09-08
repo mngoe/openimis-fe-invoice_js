@@ -32,6 +32,22 @@ const BillLineItemsFilter = ({ classes, filters, onChangeFilters }) => {
       },
     ]);
   };
+  const onChangeDecimalFilter = (filterName) => (value) => {
+    const raw = String(value ?? "").replace(/\s/g, "").replace(",", ".");
+    if (!raw) {
+      debouncedOnChangeFilters([{ id: filterName, value: null, filter: null }]);
+      return;
+    }
+    const parsed = Number(raw);
+    const decimalValue = Number.isFinite(parsed) ? parsed.toFixed(2) : null;
+    debouncedOnChangeFilters([
+      {
+        id: filterName,
+        value: decimalValue,
+        filter: decimalValue ? `${filterName}: "${decimalValue}"` : null,
+      },
+    ]);
+  };
 
   const onChangeStringFilter =
     (filterName, lookup = null) =>
@@ -94,7 +110,7 @@ const BillLineItemsFilter = ({ classes, filters, onChangeFilters }) => {
           label="billItem.unitPrice"
           min={0}
           value={filterValue("unitPrice")}
-          onChange={onChangeFilter("unitPrice")}
+          onChange={onChangeDecimalFilter("unitPrice")}
         />
       </Grid>
       <Grid item xs={2} className={classes.item}>
@@ -103,7 +119,7 @@ const BillLineItemsFilter = ({ classes, filters, onChangeFilters }) => {
           label="billItem.discount"
           min={0}
           value={filterValue("discount")}
-          onChange={onChangeFilter("discount")}
+          onChange={onChangeDecimalFilter("discount")}
         />
       </Grid>
       <Grid item xs={2} className={classes.item}>
@@ -112,7 +128,7 @@ const BillLineItemsFilter = ({ classes, filters, onChangeFilters }) => {
           label="billItem.deduction"
           min={0}
           value={filterValue("deduction")}
-          onChange={onChangeFilter("deduction")}
+          onChange={onChangeDecimalFilter("deduction")}
         />
       </Grid>
       <Grid item xs={2} className={classes.item}>
@@ -121,7 +137,7 @@ const BillLineItemsFilter = ({ classes, filters, onChangeFilters }) => {
           label="billItem.amountTotal"
           min={0}
           value={filterValue("amountTotal")}
-          onChange={onChangeFilter("amountTotal")}
+          onChange={onChangeDecimalFilter("amountTotal")}
         />
       </Grid>
       <Grid item xs={2} className={classes.item}>
@@ -130,7 +146,7 @@ const BillLineItemsFilter = ({ classes, filters, onChangeFilters }) => {
           label="billItem.amountNet"
           min={0}
           value={filterValue("amountNet")}
-          onChange={onChangeFilter("amountNet")}
+          onChange={onChangeDecimalFilter("amountNet")}
         />
       </Grid>
     </Grid>
