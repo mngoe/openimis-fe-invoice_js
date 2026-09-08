@@ -7,6 +7,7 @@ import { withTheme, withStyles } from "@material-ui/core/styles";
 
 import { formatMessage, TextInput, NumberInput, PublishedComponent } from "@openimis/fe-core";
 import { CONTAINS_LOOKUP, DEFUALT_DEBOUNCE_TIME } from "../constants";
+import { buildDecimalFilter } from "../util/decimalFilter";
 import { defaultFilterStyles } from "../util/styles";
 import InvoiceStatusPicker from "../pickers/InvoiceStatusPicker";
 import ThirdpartyTypePicker from "../pickers/ThirdpartyTypePicker";
@@ -28,6 +29,8 @@ const InvoiceFilter = ({ intl, classes, filters, onChangeFilters }) => {
       },
     ]);
   };
+  const onChangeDecimalFilter = (filterName) => (value) =>
+    debouncedOnChangeFilters(buildDecimalFilter(filterName, value));
 
   const onChangeStringFilter =
     (filterName, lookup = null) =>
@@ -109,7 +112,7 @@ const InvoiceFilter = ({ intl, classes, filters, onChangeFilters }) => {
           label="invoice.amountTotal"
           min={0}
           value={filterValue("amountTotal")}
-          onChange={onChangeFilter("amountTotal")}
+          onChange={onChangeDecimalFilter("amountTotal")}
         />
       </Grid>
     </Grid>

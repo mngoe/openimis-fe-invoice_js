@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { injectIntl } from "react-intl";
-import { formatMessageWithValues, Searcher, useModulesManager } from "@openimis/fe-core";
+import { formatAmount, formatMessageWithValues, Searcher, useModulesManager } from "@openimis/fe-core";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
 import { fetchInvoiceLineItems } from "../actions";
@@ -58,22 +58,22 @@ const InvoiceLineItemsSearcher = ({
       {
         header: "invoiceLineItem.unitPrice",
         sort: ["unitPrice", true],
-        formatter: (invoiceLineItem) => invoiceLineItem.unitPrice,
+        formatter: (invoiceLineItem) => formatAmount(modulesManager, intl, invoiceLineItem.unitPrice),
       },
       {
         header: "invoiceLineItem.discount",
         sort: ["discount", true],
-        formatter: (invoiceLineItem) => invoiceLineItem.discount,
+        formatter: (invoiceLineItem) => formatAmount(modulesManager, intl, invoiceLineItem.discount),
       },
       {
         header: "invoiceLineItem.deduction",
         sort: ["deduction", true],
-        formatter: (invoiceLineItem) => invoiceLineItem.deduction,
+        formatter: (invoiceLineItem) => formatAmount(modulesManager, intl, invoiceLineItem.deduction),
       },
       {
         header: "invoiceLineItem.amountTotal",
         sort: ["amountTotal", true],
-        formatter: (invoiceLineItem) => invoiceLineItem.amountTotal,
+        formatter: (invoiceLineItem) => formatAmount(modulesManager, intl, invoiceLineItem.amountTotal),
       },
       {
         header: "invoiceLineItem.amountNet",
@@ -85,7 +85,7 @@ const InvoiceLineItemsSearcher = ({
             })}
             placement="right"
           >
-            <div>{invoiceLineItem.amountNet}</div>
+            <div>{formatAmount(modulesManager, intl, invoiceLineItem.amountNet)}</div>
           </Tooltip>
         ),
       },
