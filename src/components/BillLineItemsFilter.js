@@ -13,7 +13,6 @@ const styles = (theme) => ({
     padding: theme.spacing(1),
   },
 });
-
 const BillLineItemsFilter = ({ classes, filters, onChangeFilters }) => {
   const debouncedOnChangeFilters = _debounce(onChangeFilters, DEFUALT_DEBOUNCE_TIME);
 
