@@ -17,7 +17,6 @@ const BillLineItemsFilter = ({ classes, filters, onChangeFilters }) => {
   const debouncedOnChangeFilters = _debounce(onChangeFilters, DEFUALT_DEBOUNCE_TIME);
 
   const filterValue = (filterName) => filters?.[filterName]?.value;
-
   const filterTextFieldValue = (filterName) => (filters[filterName] ? filters[filterName].value : "");
 
   const onChangeFilter = (filterName) => (value) => {
