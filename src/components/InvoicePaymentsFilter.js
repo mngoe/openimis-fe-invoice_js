@@ -26,6 +26,22 @@ const InvoicePaymentsFilter = ({ intl, classes, filters, onChangeFilters }) => {
       },
     ]);
   };
+  const onChangeDecimalFilter = (filterName) => (value) => {
+    const raw = String(value ?? "").replace(/\s/g, "").replace(",", ".");
+    if (!raw) {
+      debouncedOnChangeFilters([{ id: filterName, value: null, filter: null }]);
+      return;
+    }
+    const parsed = Number(raw);
+    const decimalValue = Number.isFinite(parsed) ? parsed.toFixed(2) : null;
+    debouncedOnChangeFilters([
+      {
+        id: filterName,
+        value: decimalValue,
+        filter: decimalValue ? `${filterName}: "${decimalValue}"` : null,
+      },
+    ]);
+  };
 
   const onChangeStringFilter =
     (filterName, lookup = null) =>
@@ -104,7 +120,7 @@ const InvoicePaymentsFilter = ({ intl, classes, filters, onChangeFilters }) => {
           label="paymentInvoice.fees"
           min={0}
           value={filterValue("fees")}
-          onChange={onChangeFilter("fees")}
+          onChange={onChangeDecimalFilter("fees")}
         />
       </Grid>
       <Grid item xs={2} className={classes.item}>
@@ -113,7 +129,7 @@ const InvoicePaymentsFilter = ({ intl, classes, filters, onChangeFilters }) => {
           label="paymentInvoice.amountReceived"
           min={0}
           value={filterValue("amountReceived")}
-          onChange={onChangeFilter("amountReceived")}
+          onChange={onChangeDecimalFilter("amountReceived")}
         />
       </Grid>
       <Grid item xs={2} className={classes.item}>

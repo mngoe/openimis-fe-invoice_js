@@ -1,6 +1,6 @@
 import React from "react";
 import { injectIntl } from "react-intl";
-import { formatMessageWithValues, Searcher } from "@openimis/fe-core";
+import { formatAmount, formatMessageWithValues, Searcher, useModulesManager } from "@openimis/fe-core";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
 import { fetchInvoiceLineItems } from "../actions";
@@ -19,6 +19,7 @@ const InvoiceLineItemsSearcher = ({
   invoiceLineItemsPageInfo,
   invoiceLineItemsTotalCount,
 }) => {
+  const modulesManager = useModulesManager();
   const fetch = (params) => fetchInvoiceLineItems(params);
 
   const headers = () => [
@@ -38,10 +39,10 @@ const InvoiceLineItemsSearcher = ({
     (invoiceLineItem) => invoiceLineItem.description,
     (invoiceLineItem) => invoiceLineItem.ledgerAccount,
     (invoiceLineItem) => invoiceLineItem.quantity,
-    (invoiceLineItem) => invoiceLineItem.unitPrice,
-    (invoiceLineItem) => invoiceLineItem.discount,
-    (invoiceLineItem) => invoiceLineItem.deduction,
-    (invoiceLineItem) => invoiceLineItem.amountTotal,
+    (invoiceLineItem) => formatAmount(modulesManager, intl, invoiceLineItem.unitPrice),
+    (invoiceLineItem) => formatAmount(modulesManager, intl, invoiceLineItem.discount),
+    (invoiceLineItem) => formatAmount(modulesManager, intl, invoiceLineItem.deduction),
+    (invoiceLineItem) => formatAmount(modulesManager, intl, invoiceLineItem.amountTotal),
     (invoiceLineItem) => (
       <Tooltip
         title={formatMessageWithValues(intl, "invoice", "invoiceLineItem.amountNetTooltip", {
@@ -49,7 +50,7 @@ const InvoiceLineItemsSearcher = ({
         })}
         placement="right"
       >
-        <div>{invoiceLineItem.amountNet}</div>
+        <div>{formatAmount(modulesManager, intl, invoiceLineItem.amountNet)}</div>
       </Tooltip>
     ),
   ];
