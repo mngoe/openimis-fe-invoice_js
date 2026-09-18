@@ -1,12 +1,25 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { injectIntl } from "react-intl";
-import { formatMessageWithValues, Searcher } from "@openimis/fe-core";
+import { formatMessageWithValues, Searcher, useModulesManager } from "@openimis/fe-core";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
 import { fetchInvoiceLineItems } from "../actions";
 import { DEFAULT_PAGE_SIZE, ROWS_PER_PAGE_OPTIONS } from "../constants";
+import { getHiddenInvoiceLineItemColumns } from "../util/invoiceLineItemsColumns";
 import { Tooltip } from "@material-ui/core";
 import InvoiceLineItemsFilter from "./InvoiceLineItemsFilter";
+
+// taxAnalysis is a raw JSON column: never let a corrupted value break the row rendering.
+const parseTaxAnalysisTotal = (taxAnalysis) => {
+  if (!taxAnalysis) {
+    return null;
+  }
+  try {
+    return JSON.parse(taxAnalysis)?.["total"] ?? null;
+  } catch (error) {
+    return null;
+  }
+};
 
 const InvoiceLineItemsSearcher = ({
   intl,
@@ -19,52 +32,71 @@ const InvoiceLineItemsSearcher = ({
   invoiceLineItemsPageInfo,
   invoiceLineItemsTotalCount,
 }) => {
+  const modulesManager = useModulesManager();
   const fetch = (params) => fetchInvoiceLineItems(params);
 
-  const headers = () => [
-    "invoiceLineItem.code",
-    "invoiceLineItem.description",
-    "invoiceLineItem.ledgerAccount",
-    "invoiceLineItem.quantity",
-    "invoiceLineItem.unitPrice",
-    "invoiceLineItem.discount",
-    "invoiceLineItem.deduction",
-    "invoiceLineItem.amountTotal",
-    "invoiceLineItem.amountNet",
-  ];
+  // Hidden columns are filtered out of a single columns list so that headers, formatters and sorts stay aligned.
+  const columns = useMemo(() => {
+    const hiddenColumns = getHiddenInvoiceLineItemColumns(modulesManager);
+    return [
+      { header: "invoiceLineItem.code", sort: ["code", true], formatter: (invoiceLineItem) => invoiceLineItem.code },
+      {
+        header: "invoiceLineItem.description",
+        sort: ["description", true],
+        formatter: (invoiceLineItem) => invoiceLineItem.description,
+      },
+      {
+        header: "invoiceLineItem.ledgerAccount",
+        sort: ["ledgerAccount", true],
+        formatter: (invoiceLineItem) => invoiceLineItem.ledgerAccount,
+      },
+      {
+        header: "invoiceLineItem.quantity",
+        sort: ["quantity", true],
+        formatter: (invoiceLineItem) => invoiceLineItem.quantity,
+      },
+      {
+        header: "invoiceLineItem.unitPrice",
+        sort: ["unitPrice", true],
+        formatter: (invoiceLineItem) => invoiceLineItem.unitPrice,
+      },
+      {
+        header: "invoiceLineItem.discount",
+        sort: ["discount", true],
+        formatter: (invoiceLineItem) => invoiceLineItem.discount,
+      },
+      {
+        header: "invoiceLineItem.deduction",
+        sort: ["deduction", true],
+        formatter: (invoiceLineItem) => invoiceLineItem.deduction,
+      },
+      {
+        header: "invoiceLineItem.amountTotal",
+        sort: ["amountTotal", true],
+        formatter: (invoiceLineItem) => invoiceLineItem.amountTotal,
+      },
+      {
+        header: "invoiceLineItem.amountNet",
+        sort: ["amountNet", true],
+        formatter: (invoiceLineItem) => (
+          <Tooltip
+            title={formatMessageWithValues(intl, "invoice", "invoiceLineItem.amountNetTooltip", {
+              value: parseTaxAnalysisTotal(invoiceLineItem?.taxAnalysis),
+            })}
+            placement="right"
+          >
+            <div>{invoiceLineItem.amountNet}</div>
+          </Tooltip>
+        ),
+      },
+    ].filter((column) => !hiddenColumns.includes(column.header));
+  }, [modulesManager, intl]);
 
-  const itemFormatters = () => [
-    (invoiceLineItem) => invoiceLineItem.code,
-    (invoiceLineItem) => invoiceLineItem.description,
-    (invoiceLineItem) => invoiceLineItem.ledgerAccount,
-    (invoiceLineItem) => invoiceLineItem.quantity,
-    (invoiceLineItem) => invoiceLineItem.unitPrice,
-    (invoiceLineItem) => invoiceLineItem.discount,
-    (invoiceLineItem) => invoiceLineItem.deduction,
-    (invoiceLineItem) => invoiceLineItem.amountTotal,
-    (invoiceLineItem) => (
-      <Tooltip
-        title={formatMessageWithValues(intl, "invoice", "invoiceLineItem.amountNetTooltip", {
-          value: !!invoiceLineItem?.taxAnalysis ? JSON.parse(invoiceLineItem.taxAnalysis)?.["total"] : null,
-        })}
-        placement="right"
-      >
-        <div>{invoiceLineItem.amountNet}</div>
-      </Tooltip>
-    ),
-  ];
+  const headers = () => columns.map((column) => column.header);
 
-  const sorts = () => [
-    ["code", true],
-    ["description", true],
-    ["ledgerAccount", true],
-    ["quantity", true],
-    ["unitPrice", true],
-    ["discount", true],
-    ["deduction", true],
-    ["amountTotal", true],
-    ["amountNet", true],
-  ];
+  const itemFormatters = () => columns.map((column) => column.formatter);
+
+  const sorts = () => columns.map((column) => column.sort);
 
   const defaultFilters = () => ({
     invoice_Id: {
