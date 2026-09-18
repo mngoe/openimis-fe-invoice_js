@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useMemo, useState } from "react";
 import { injectIntl } from "react-intl";
 import {
   formatMessage,
@@ -18,6 +18,7 @@ import {
   RIGHT_INVOICE_PAYMENT_DELETE,
   ROWS_PER_PAGE_OPTIONS,
 } from "../constants";
+import { getHiddenInvoicePaymentColumns } from "../util/invoicePaymentsColumns";
 import InvoicePaymentsFilter from "./InvoicePaymentsFilter";
 import PaymentInvoiceStatusPicker from "../pickers/PaymentInvoiceStatusPicker"
 import { IconButton, Tooltip } from "@material-ui/core";
@@ -114,35 +115,72 @@ const InvoicePaymentsSearcher = ({
     return queryParams;
   };
 
-  const headers = () => [
-    "paymentInvoice.reconciliationStatus.label",
-    "paymentInvoice.codeExt",
-    "paymentInvoice.label",
-    "paymentInvoice.codeTp",
-    "paymentInvoice.codeReceipt",
-    "paymentInvoice.fees",
-    "paymentInvoice.amountReceived",
-    "paymentInvoice.datePayment",
-    "paymentInvoice.paymentOrigin",
-    "paymentInvoice.payerRef",
-  ];
+  // Hidden columns are filtered out of a single columns list so that headers, formatters and sorts stay aligned.
+  const columns = useMemo(() => {
+    const hiddenColumns = getHiddenInvoicePaymentColumns(modulesManager);
+    return [
+      {
+        header: "paymentInvoice.reconciliationStatus.label",
+        sort: ["reconciliationStatus", true],
+        formatter: (paymentInvoice) => (
+          <PaymentInvoiceStatusPicker value={paymentInvoice?.reconciliationStatus} readOnly />
+        ),
+      },
+      {
+        header: "paymentInvoice.codeExt",
+        sort: ["codeExt", true],
+        formatter: (paymentInvoice) => paymentInvoice.codeExt,
+      },
+      {
+        header: "paymentInvoice.label",
+        sort: ["label", true],
+        formatter: (paymentInvoice) => paymentInvoice.label,
+      },
+      {
+        header: "paymentInvoice.codeTp",
+        sort: ["codeTp", true],
+        formatter: (paymentInvoice) => paymentInvoice.codeTp,
+      },
+      {
+        header: "paymentInvoice.codeReceipt",
+        sort: ["codeReceipt", true],
+        formatter: (paymentInvoice) => paymentInvoice.codeReceipt,
+      },
+      {
+        header: "paymentInvoice.fees",
+        sort: ["fees", true],
+        formatter: (paymentInvoice) => formatAmount(modulesManager, intl, paymentInvoice.fees),
+      },
+      {
+        header: "paymentInvoice.amountReceived",
+        sort: ["amountReceived", true],
+        formatter: (paymentInvoice) => formatAmount(modulesManager, intl, paymentInvoice.amountReceived),
+      },
+      {
+        header: "paymentInvoice.datePayment",
+        sort: ["datePayment", true],
+        formatter: (paymentInvoice) =>
+          !!paymentInvoice.datePayment
+            ? formatDateFromISO(modulesManager, intl, paymentInvoice.datePayment)
+            : EMPTY_STRING,
+      },
+      {
+        header: "paymentInvoice.paymentOrigin",
+        sort: ["paymentOrigin", true],
+        formatter: (paymentInvoice) => paymentInvoice.paymentOrigin,
+      },
+      {
+        header: "paymentInvoice.payerRef",
+        sort: ["payerRef", true],
+        formatter: (paymentInvoice) => paymentInvoice.payerRef,
+      },
+    ].filter((column) => !hiddenColumns.includes(column.header));
+  }, [modulesManager, intl]);
+
+  const headers = () => columns.map((column) => column.header);
 
   const itemFormatters = () => {
-    const formatters = [
-      (paymentInvoice) => <PaymentInvoiceStatusPicker value={paymentInvoice?.reconciliationStatus} readOnly />,
-      (paymentInvoice) => paymentInvoice.codeExt,
-      (paymentInvoice) => paymentInvoice.label,
-      (paymentInvoice) => paymentInvoice.codeTp,
-      (paymentInvoice) => paymentInvoice.codeReceipt,
-      (paymentInvoice) => formatAmount(modulesManager, intl, paymentInvoice.fees),
-      (paymentInvoice) => formatAmount(modulesManager, intl, paymentInvoice.amountReceived),
-      (paymentInvoice) =>
-        !!paymentInvoice.datePayment
-          ? formatDateFromISO(modulesManager, intl, paymentInvoice.datePayment)
-          : EMPTY_STRING,
-      (paymentInvoice) => paymentInvoice.paymentOrigin,
-      (paymentInvoice) => paymentInvoice.payerRef,
-    ];
+    const formatters = columns.map((column) => column.formatter);
 
     if (rights.includes(RIGHT_INVOICE_PAYMENT_DELETE)) {
       formatters.push((paymentInvoice) => (
@@ -159,18 +197,7 @@ const InvoicePaymentsSearcher = ({
     return formatters;
   };
 
-  const sorts = () => [
-    ["reconciliationStatus", true],
-    ["codeExt", true],
-    ["label", true],
-    ["codeTp", true],
-    ["codeReceipt", true],
-    ["fees", true],
-    ["amountReceived", true],
-    ["datePayment", true],
-    ["paymentOrigin", true],
-    ["payerRef", true],
-  ];
+  const sorts = () => columns.map((column) => column.sort);
 
   const defaultFilters = () => ({
     subjectIds: {
