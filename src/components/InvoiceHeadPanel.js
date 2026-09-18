@@ -9,8 +9,30 @@ import { getSubjectAndThirdpartyTypePicker } from "../util/subject-and-thirdpart
 import InvoiceStatusPicker from "../pickers/InvoiceStatusPicker";
 import { defaultHeadPanelStyles } from "../util/styles";
 
+// Fields hidden by default in the invoice head panel.
+// Nomenclature follows the claim form ids (e.g. "Claim.healthFacility") and can be
+// overridden from the "fe-invoice" module configuration, e.g. `invoiceHeadPanel.hiddenFields: []`
+// to display every field again or `["Invoice.note"]` to only hide the note.
+const DEFAULT_HIDDEN_FIELDS = [
+  "Invoice.subject",
+  "Invoice.codeTp",
+  "Invoice.codeExt",
+  "Invoice.amountDiscount",
+  "Invoice.taxAnalysis",
+  "Invoice.note",
+  "Invoice.terms",
+  "Invoice.paymentReference",
+];
+
 const InvoiceHeadPanel = ({ modulesManager, classes, invoice, mandatoryFieldsEmpty }) => {
   const taxAnalysisTotal = !!invoice?.taxAnalysis ? JSON.parse(invoice.taxAnalysis)?.["total"] : null;
+  const configuredHiddenFields = modulesManager.getConf(
+    "fe-invoice",
+    "invoiceHeadPanel.hiddenFields",
+    DEFAULT_HIDDEN_FIELDS,
+  );
+  const hiddenFields = Array.isArray(configuredHiddenFields) ? configuredHiddenFields : DEFAULT_HIDDEN_FIELDS;
+  const isHidden = (id) => hiddenFields.includes(id);
   return (
     <>
       <Grid container className={classes.tableTitle}>
@@ -34,9 +56,11 @@ const InvoiceHeadPanel = ({ modulesManager, classes, invoice, mandatoryFieldsEmp
         </>
       )}
       <Grid container className={classes.item}>
-        <Grid item xs={3} className={classes.item}>
-          <SubjectTypePicker label="invoice.subject" withNull value={invoice?.subjectTypeName} readOnly />
-        </Grid>
+        {!isHidden("Invoice.subject") && (
+          <Grid item xs={3} className={classes.item}>
+            <SubjectTypePicker label="invoice.subject" withNull value={invoice?.subjectTypeName} readOnly />
+          </Grid>
+        )}
         <Grid item xs={3} className={classes.item}>
           {getSubjectAndThirdpartyTypePicker(modulesManager, invoice?.subjectTypeName, invoice?.subject)}
         </Grid>
@@ -49,12 +73,16 @@ const InvoiceHeadPanel = ({ modulesManager, classes, invoice, mandatoryFieldsEmp
         <Grid item xs={3} className={classes.item}>
           <TextInput module="invoice" label="invoice.code" value={invoice?.code} readOnly />
         </Grid>
-        <Grid item xs={3} className={classes.item}>
-          <TextInput module="invoice" label="invoice.codeTp" value={invoice?.codeTp} readOnly />
-        </Grid>
-        <Grid item xs={3} className={classes.item}>
-          <TextInput module="invoice" label="invoice.codeExt" value={invoice?.codeExt} readOnly />
-        </Grid>
+        {!isHidden("Invoice.codeTp") && (
+          <Grid item xs={3} className={classes.item}>
+            <TextInput module="invoice" label="invoice.codeTp" value={invoice?.codeTp} readOnly />
+          </Grid>
+        )}
+        {!isHidden("Invoice.codeExt") && (
+          <Grid item xs={3} className={classes.item}>
+            <TextInput module="invoice" label="invoice.codeExt" value={invoice?.codeExt} readOnly />
+          </Grid>
+        )}
         <Grid item xs={3} className={classes.item}>
           <PublishedComponent
             pubRef="core.DatePicker"
@@ -100,21 +128,25 @@ const InvoiceHeadPanel = ({ modulesManager, classes, invoice, mandatoryFieldsEmp
             readOnly
           />
         </Grid>
-        <Grid item xs={3} className={classes.item}>
-          <NumberInput
-            module="invoice"
-            label="invoice.amountDiscount"
-            displayZero
-            value={invoice?.amountDiscount}
-            readOnly
-          />
-        </Grid>
+        {!isHidden("Invoice.amountDiscount") && (
+          <Grid item xs={3} className={classes.item}>
+            <NumberInput
+              module="invoice"
+              label="invoice.amountDiscount"
+              displayZero
+              value={invoice?.amountDiscount}
+              readOnly
+            />
+          </Grid>
+        )}
         <Grid item xs={3} className={classes.item}>
           <NumberInput module="invoice" label="invoice.amountNet" displayZero value={invoice?.amountNet} readOnly />
         </Grid>
-        <Grid item xs={3} className={classes.item}>
-          <TextInput module="invoice" label="invoice.taxAnalysis" value={taxAnalysisTotal} readOnly />
-        </Grid>
+        {!isHidden("Invoice.taxAnalysis") && (
+          <Grid item xs={3} className={classes.item}>
+            <TextInput module="invoice" label="invoice.taxAnalysis" value={taxAnalysisTotal} readOnly />
+          </Grid>
+        )}
         <Grid item xs={3} className={classes.item}>
           <NumberInput module="invoice" label="invoice.amountTotal" displayZero value={invoice?.amountTotal} readOnly />
         </Grid>
@@ -127,15 +159,21 @@ const InvoiceHeadPanel = ({ modulesManager, classes, invoice, mandatoryFieldsEmp
         <Grid item xs={3} className={classes.item}>
           <TextInput module="invoice" label="invoice.currencyCode" value={invoice?.currencyCode} readOnly />
         </Grid>
-        <Grid item xs={3} className={classes.item}>
-          <TextInput module="invoice" label="invoice.note" value={invoice?.note} readOnly />
-        </Grid>
-        <Grid item xs={3} className={classes.item}>
-          <TextInput module="invoice" label="invoice.terms" value={invoice?.terms} readOnly />
-        </Grid>
-        <Grid item xs={3} className={classes.item}>
-          <TextInput module="invoice" label="invoice.paymentReference" value={invoice?.paymentReference} readOnly />
-        </Grid>
+        {!isHidden("Invoice.note") && (
+          <Grid item xs={3} className={classes.item}>
+            <TextInput module="invoice" label="invoice.note" value={invoice?.note} readOnly />
+          </Grid>
+        )}
+        {!isHidden("Invoice.terms") && (
+          <Grid item xs={3} className={classes.item}>
+            <TextInput module="invoice" label="invoice.terms" value={invoice?.terms} readOnly />
+          </Grid>
+        )}
+        {!isHidden("Invoice.paymentReference") && (
+          <Grid item xs={3} className={classes.item}>
+            <TextInput module="invoice" label="invoice.paymentReference" value={invoice?.paymentReference} readOnly />
+          </Grid>
+        )}
       </Grid>
     </>
   );
