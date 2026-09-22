@@ -7,6 +7,10 @@ import { LEGAL_AND_FINANCE_MAIN_MENU_CONTRIBUTION_KEY } from "../constants";
 import { withStyles } from "@material-ui/core/styles";
 import { RIGHT_INVOICE_SEARCH, RIGHT_BILL_SEARCH, RIGHT_BILL_AMEND, RIGHT_INVOICE_AMEND } from "./../constants"
 
+// Whether the "bills" menu entry is displayed. Can be overridden from the "fe-invoice" module
+// configuration, e.g. `invoice.billsMenuEnabled: true` to show the menu even without the bill rights.
+const DEFAULT_BILLS_MENU_ENABLED = false;
+
 const DoubleArrowFlipped = withStyles({
   root: {
     transform: "scaleX(-1)",
@@ -25,7 +29,16 @@ const LegalAndFinanceMainMenu = (props) => {
       route: "/invoices",
     });
   }
-  if (!!props.rights.filter((r) => r >= RIGHT_BILL_SEARCH && r <= RIGHT_BILL_AMEND).length) {
+
+  const billsMenuEnabled = props.modulesManager.getConf(
+    "fe-invoice",
+    "invoice.billsMenuEnabled",
+    DEFAULT_BILLS_MENU_ENABLED,
+  );
+  if (
+    billsMenuEnabled &&
+    !!props.rights.filter((r) => r >= RIGHT_BILL_SEARCH && r <= RIGHT_BILL_AMEND).length
+  ) {
     // RIGHT_SEARCH is shared by HF & HQ staff)
     entries.push({
       text: formatMessage(props.intl, "invoice", "menu.bills"),
