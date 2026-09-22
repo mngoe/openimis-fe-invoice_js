@@ -50,7 +50,7 @@ const LegalAndFinanceMainMenu = (props) => {
   entries.push(
     ...props.modulesManager
       .getContribs(LEGAL_AND_FINANCE_MAIN_MENU_CONTRIBUTION_KEY)
-      .filter((c) => !c.filter || c.filter(props.rights)),
+      .filter((c) => !c.filter || c.filter(props.rights, props.modulesManager)),
   );
   if (!entries.length) return null;
 
