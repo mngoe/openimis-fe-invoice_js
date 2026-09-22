@@ -68,7 +68,7 @@ const LegalAndFinanceMainMenu = (props) => {
   );
 
   if (
-    invoiceMenusEnabled.bills &&
+    invoiceMenusEnabled.bills === true &&
     !!props.rights.filter((r) => r >= RIGHT_BILL_SEARCH && r <= RIGHT_BILL_AMEND).length
   ) {
     // RIGHT_SEARCH is shared by HF & HQ staff)
@@ -84,8 +84,11 @@ const LegalAndFinanceMainMenu = (props) => {
       .getContribs(LEGAL_AND_FINANCE_MAIN_MENU_CONTRIBUTION_KEY)
       .filter((c) => {
         const configKey = ROUTE_TO_MENU_CONFIG_KEY[c.route];
-        // Keep entries that are not configurable (no matching route) or that are enabled in the config.
-        return !configKey || invoiceMenusEnabled[configKey];
+        // Keep entries that are not configurable (no matching route).
+        if (!configKey) return true;
+        // Only display a menu when its key is explicitly enabled (true) in the config.
+        // If the config exists but doesn't contain the key, it is hidden by default.
+        return invoiceMenusEnabled[configKey] === true;
       })
       .filter((c) => !c.filter || c.filter(props.rights, props.modulesManager)),
   );
