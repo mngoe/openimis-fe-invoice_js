@@ -2,7 +2,8 @@ import React from "react";
 import { connect } from "react-redux";
 import { injectIntl } from "react-intl";
 
-import { Grid, Paper, Divider, Typography, CircularProgress } from "@material-ui/core";
+import { Grid, Paper, Divider, Typography, CircularProgress, IconButton, Tooltip } from "@material-ui/core";
+import OpenInNewIcon from "@material-ui/icons/OpenInNew";
 import { withTheme, withStyles } from "@material-ui/core/styles";
 
 import {
@@ -137,6 +138,8 @@ class FamilyInvoicesPaymentsOverview extends PagedDataHandler {
     historyPush(this.props.modulesManager, this.props.history, "invoice.route.invoice", [invoiceRow.invoiceId], newTab);
   };
 
+  invoiceRowIdentifier = (invoiceRow) => invoiceRow?.invoiceId || invoiceRow?.invoiceCode;
+
   invoiceHeaders = [
     "invoice.familyInvoicesPayments.coveredPeriod",
     "invoice.familyInvoicesPayments.invoiceNumber",
@@ -144,6 +147,7 @@ class FamilyInvoicesPaymentsOverview extends PagedDataHandler {
     "invoice.familyInvoicesPayments.totalInvoicePayments",
     "invoice.familyInvoicesPayments.lastPayment",
     "invoice.familyInvoicesPayments.invoiceBalance",
+    "",
   ];
 
   invoiceFormatters = [
@@ -156,6 +160,25 @@ class FamilyInvoicesPaymentsOverview extends PagedDataHandler {
         ? formatDateFromISO(this.props.modulesManager, this.props.intl, invoiceRow.lastPayment)
         : "",
     (invoiceRow) => formatAmount(this.props.modulesManager, this.props.intl, invoiceRow?.invoiceBalance || 0),
+    (invoiceRow) => (
+      <Tooltip title={
+        formatMessage(
+          this.props.intl,
+          "invoice",
+          "action.openInNewTab.tooltip"
+        )}
+        >
+        <IconButton
+          size="small"
+          onClick={(e) => {
+            e.stopPropagation();
+            this.onDoubleClick(invoiceRow, true);
+          }}
+        >
+          <OpenInNewIcon fontSize="small" />
+        </IconButton>
+      </Tooltip>
+    ),
   ];
 
   invoicePaymentHeaders = [
@@ -281,6 +304,7 @@ class FamilyInvoicesPaymentsOverview extends PagedDataHandler {
               module="invoice"
               headers={this.invoiceHeaders}
               itemFormatters={this.invoiceFormatters}
+              itemIdentifier={this.invoiceRowIdentifier}
               items={invoiceRows}
               error={invoiceRowsError}
               withSelection="single"
