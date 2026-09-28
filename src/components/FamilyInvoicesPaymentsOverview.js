@@ -13,6 +13,7 @@ import {
   historyPush,
   PagedDataHandler,
   Table,
+  withHistory,
   withModulesManager,
   decodeId,
 } from "@openimis/fe-core";
@@ -84,15 +85,40 @@ class FamilyInvoicesPaymentsOverview extends PagedDataHandler {
     }
   }
 
-  familyChanged = (prevProps) =>
-    (!prevProps.family && !!this.props.family) ||
-    (!!prevProps.family && !!this.props.family && (prevProps.family.uuid == null || prevProps.family.uuid !== this.props.family.uuid));
+  resolveFamily = (props) => {
+    if (props?.family?.headInsuree?.id) {
+      return props.family;
+    }
+    return props?.insuree?.family || props?.family || {};
+  };
 
-  queryPrms = () => {
-    const headInsureeId = this.props.family?.headInsuree?.id ? decodeId(this.props.family.headInsuree.id) : null;
+  getHeadInsureeId = (family) => family?.headInsuree?.id || family?.parent?.headInsuree?.id || null;
+
+  decodeMaybe = (id) => {
+    if (!id) return null;
+    try {
+      return decodeId(id);
+    } catch (e) {
+      return id;
+    }
+  };
+
+  buildParams = (props) => {
+    const family = this.resolveFamily(props);
+    const headInsureeId = this.decodeMaybe(this.getHeadInsureeId(family));
     if (!headInsureeId) return null;
     return [`headInsureeId: "${headInsureeId}"`];
   };
+
+  familyChanged = (prevProps) => {
+    const previousFamily = this.resolveFamily(prevProps);
+    const currentFamily = this.resolveFamily(this.props);
+    const previousFamilyKey = previousFamily?.uuid || this.getHeadInsureeId(previousFamily) || null;
+    const currentFamilyKey = currentFamily?.uuid || this.getHeadInsureeId(currentFamily) || null;
+    return previousFamilyKey !== currentFamilyKey;
+  };
+
+  queryPrms = () => this.buildParams(this.props);
 
   globalsParams = () => this.queryPrms();
 
@@ -102,9 +128,7 @@ class FamilyInvoicesPaymentsOverview extends PagedDataHandler {
     const params = this.globalsParams();
     if (!params) return;
     const paramsKey = this.globalsParamsKey(params);
-    const prevKey = prevProps?.family?.headInsuree?.id
-      ? this.globalsParamsKey([`headInsureeId: "${decodeId(prevProps.family.headInsuree.id)}"`])
-      : null;
+    const prevKey = prevProps ? this.globalsParamsKey(this.buildParams(prevProps)) : null;
     if (prevKey === paramsKey && this.props.familyInvoicePaymentGlobalsParamsKey === paramsKey) return;
     this.props.fetchFamilyInvoicePaymentGlobals(params, paramsKey);
   };
@@ -218,7 +242,6 @@ class FamilyInvoicesPaymentsOverview extends PagedDataHandler {
 
   render() {
     const {
-      family,
       rights,
       invoiceRows,
       invoiceRowsTotalCount,
@@ -228,6 +251,7 @@ class FamilyInvoicesPaymentsOverview extends PagedDataHandler {
       totalPaidAmount,
       globalBalance,
     } = this.props;
+    const family = this.resolveFamily(this.props);
 
     if (!family?.headInsuree?.id || !rights.includes(RIGHT_INVOICE_SEARCH)) {
       return null;
@@ -329,5 +353,5 @@ const mapDispatchToProps = (dispatch) => ({
 });
 
 export default withModulesManager(
-  injectIntl(withTheme(withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(FamilyInvoicesPaymentsOverview)))),
+  withHistory(injectIntl(withTheme(withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(FamilyInvoicesPaymentsOverview))))),
 );
