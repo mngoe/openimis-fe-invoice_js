@@ -2,7 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { injectIntl } from "react-intl";
 
-import { Grid, Paper, Divider, Typography, CircularProgress, IconButton } from "@material-ui/core";
+import { Grid, Paper, Divider, Typography, CircularProgress, IconButton, Tooltip } from "@material-ui/core";
 import OpenInNewIcon from "@material-ui/icons/OpenInNew";
 import { withTheme, withStyles } from "@material-ui/core/styles";
 
@@ -161,15 +161,23 @@ class FamilyInvoicesPaymentsOverview extends PagedDataHandler {
         : "",
     (invoiceRow) => formatAmount(this.props.modulesManager, this.props.intl, invoiceRow?.invoiceBalance || 0),
     (invoiceRow) => (
-      <IconButton
-        size="small"
-        onClick={(e) => {
-          e.stopPropagation();
-          this.onDoubleClick(invoiceRow, true);
-        }}
-      >
-        <OpenInNewIcon fontSize="small" />
-      </IconButton>
+      <Tooltip title={
+        formatMessage(
+          this.props.intl,
+          "invoice",
+          "action.openInNewTab.tooltip"
+        )}
+        >
+        <IconButton
+          size="small"
+          onClick={(e) => {
+            e.stopPropagation();
+            this.onDoubleClick(invoiceRow, true);
+          }}
+        >
+          <OpenInNewIcon fontSize="small" />
+        </IconButton>
+      </Tooltip>
     ),
   ];
 
