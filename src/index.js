@@ -46,6 +46,7 @@ const DEFAULT_CONFIG = {
   "bill.TabPanel.label": [BillLineItemsTabLabel, BillPaymentsTabLabel, BillEventsTabLabel],
   "bill.TabPanel.panel": [BillLineItemsTabPanel, BillPaymentsTabPanel, BillEventsTabPanel],
   "insuree.FamilyOverview.panels": [FamilyInvoicesPaymentsOverview],
+  "insuree.EnquiryDialog.familyInvoicePaymentsOverview": [FamilyInvoicesPaymentsOverview],
 };
 
 export const InvoiceModule = (cfg) => {
