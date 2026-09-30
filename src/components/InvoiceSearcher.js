@@ -86,12 +86,19 @@ const InvoiceSearcher = ({
 
   const fetch = (params) => fetchInvoices(params);
 
+  const formatDateNoWrap = (date) => {
+    if (!date) return EMPTY_STRING;
+    return <span style={{ whiteSpace: "nowrap" }}>{formatDateFromISO(modulesManager, intl, date)}</span>;
+  };
+
   const headers = () => {
     const headers = [
       "invoice.subject",
       "invoice.thirdparty",
       "invoice.code",
       "invoice.dateInvoice",
+      "invoice.dateValidFrom",
+      "invoice.dateValidTo",
       "invoice.amountTotal",
       "invoice.status.label",
     ];
@@ -106,8 +113,9 @@ const InvoiceSearcher = ({
       (invoice) => getSubjectAndThirdpartyTypePicker(modulesManager, invoice.subjectTypeName, invoice.subject),
       (invoice) => getSubjectAndThirdpartyTypePicker(modulesManager, invoice.thirdpartyTypeName, invoice.thirdparty),
       (invoice) => invoice.code,
-      (invoice) =>
-        !!invoice.dateInvoice ? formatDateFromISO(modulesManager, intl, invoice.dateInvoice) : EMPTY_STRING,
+      (invoice) => formatDateNoWrap(invoice.dateInvoice),
+      (invoice) => formatDateNoWrap(invoice.dateValidFrom),
+      (invoice) => formatDateNoWrap(invoice.dateValidTo),
       (invoice) => invoice.amountTotal,
       (invoice) => <InvoiceStatusPicker value={invoice?.status} readOnly />,
     ];
@@ -146,6 +154,8 @@ const InvoiceSearcher = ({
     ["thirdpartyType", true],
     ["code", true],
     ["dateInvoice", true],
+    ["dateValidFrom", true],
+    ["dateValidTo", true],
     ["amountTotal", true],
     ["status", true],
   ];
