@@ -238,13 +238,13 @@ class FamilyInvoicesPaymentsOverview extends PagedDataHandler {
       const leftDate = left?.coveredFrom ? new Date(left.coveredFrom).getTime() : Number.POSITIVE_INFINITY;
       const rightDate = right?.coveredFrom ? new Date(right.coveredFrom).getTime() : Number.POSITIVE_INFINITY;
 
-      if (leftDate !== rightDate) return leftDate - rightDate;
+      if (leftDate !== rightDate) return rightDate - leftDate;
 
       const leftCoveredTo = left?.coveredTo ? new Date(left.coveredTo).getTime() : Number.POSITIVE_INFINITY;
       const rightCoveredTo = right?.coveredTo ? new Date(right.coveredTo).getTime() : Number.POSITIVE_INFINITY;
-      if (leftCoveredTo !== rightCoveredTo) return leftCoveredTo - rightCoveredTo;
+      if (leftCoveredTo !== rightCoveredTo) return rightCoveredTo - leftCoveredTo;
 
-      return (left?.invoiceCode || "").localeCompare(right?.invoiceCode || "");
+      return (right?.invoiceCode || "").localeCompare(left?.invoiceCode || "");
     });
 
   renderExpandedInvoiceDetails() {
