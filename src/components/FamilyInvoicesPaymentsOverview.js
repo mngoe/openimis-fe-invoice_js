@@ -233,6 +233,19 @@ class FamilyInvoicesPaymentsOverview extends PagedDataHandler {
     return `${coveredFrom || ""} - ${coveredTo || ""}`.trim();
   };
 
+  sortInvoicesByCoveredFrom = (rows = []) =>
+    [...rows].sort((left, right) => {
+      const leftDate = left?.coveredFrom ? new Date(left.coveredFrom).getTime() : Number.NEGATIVE_INFINITY;
+      const rightDate = right?.coveredFrom ? new Date(right.coveredFrom).getTime() : Number.NEGATIVE_INFINITY;
+      if (leftDate !== rightDate) return rightDate - leftDate;
+
+      const leftCoveredTo = left?.coveredTo ? new Date(left.coveredTo).getTime() : Number.NEGATIVE_INFINITY;
+      const rightCoveredTo = right?.coveredTo ? new Date(right.coveredTo).getTime() : Number.NEGATIVE_INFINITY;
+      if (leftCoveredTo !== rightCoveredTo) return rightCoveredTo - leftCoveredTo;
+
+      return (right?.invoiceCode || "").localeCompare(left?.invoiceCode || "");
+    });
+
   renderExpandedInvoiceDetails() {
     const { expandedInvoiceId } = this.state;
     if (!expandedInvoiceId) return null;
@@ -275,6 +288,7 @@ class FamilyInvoicesPaymentsOverview extends PagedDataHandler {
       globalBalance,
     } = this.props;
     const family = this.resolveFamily(this.props);
+    const sortedInvoiceRows = this.sortInvoicesByCoveredFrom(invoiceRows);
 
     if (!family?.headInsuree?.id || !rights.includes(RIGHT_INVOICE_SEARCH)) {
       return null;
@@ -329,7 +343,7 @@ class FamilyInvoicesPaymentsOverview extends PagedDataHandler {
               headers={this.invoiceHeaders}
               itemFormatters={this.invoiceFormatters}
               itemIdentifier={this.invoiceRowIdentifier}
-              items={invoiceRows}
+              items={sortedInvoiceRows}
               error={invoiceRowsError}
               withSelection="single"
               onChangeSelection={this.onToggleInvoiceDetails}
