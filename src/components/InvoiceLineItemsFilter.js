@@ -6,6 +6,7 @@ import { withTheme, withStyles } from "@material-ui/core/styles";
 
 import { NumberInput, TextInput, useModulesManager } from "@openimis/fe-core";
 import { CONTAINS_LOOKUP, DEFUALT_DEBOUNCE_TIME } from "../constants";
+import { buildDecimalFilter } from "../util/decimalFilter";
 import { getHiddenInvoiceLineItemColumns } from "../util/invoiceLineItemsColumns";
 import { defaultFilterStyles } from "../util/styles";
 
@@ -29,6 +30,8 @@ const InvoiceLineItemsFilter = ({ classes, filters, onChangeFilters }) => {
       },
     ]);
   };
+  const onChangeDecimalFilter = (filterName) => (value) =>
+    debouncedOnChangeFilters(buildDecimalFilter(filterName, value));
 
   const onChangeStringFilter =
     (filterName, lookup = null) =>
@@ -100,7 +103,7 @@ const InvoiceLineItemsFilter = ({ classes, filters, onChangeFilters }) => {
             label="invoiceLineItem.unitPrice"
             min={0}
             value={filterValue("unitPrice")}
-            onChange={onChangeFilter("unitPrice")}
+            onChange={onChangeDecimalFilter("unitPrice")}
           />
         </Grid>
       )}
@@ -111,7 +114,7 @@ const InvoiceLineItemsFilter = ({ classes, filters, onChangeFilters }) => {
             label="invoiceLineItem.discount"
             min={0}
             value={filterValue("discount")}
-            onChange={onChangeFilter("discount")}
+            onChange={onChangeDecimalFilter("discount")}
           />
         </Grid>
       )}
@@ -122,7 +125,7 @@ const InvoiceLineItemsFilter = ({ classes, filters, onChangeFilters }) => {
             label="invoiceLineItem.deduction"
             min={0}
             value={filterValue("deduction")}
-            onChange={onChangeFilter("deduction")}
+            onChange={onChangeDecimalFilter("deduction")}
           />
         </Grid>
       )}
@@ -133,7 +136,7 @@ const InvoiceLineItemsFilter = ({ classes, filters, onChangeFilters }) => {
             label="invoiceLineItem.amountTotal"
             min={0}
             value={filterValue("amountTotal")}
-            onChange={onChangeFilter("amountTotal")}
+            onChange={onChangeDecimalFilter("amountTotal")}
           />
         </Grid>
       )}
@@ -144,7 +147,7 @@ const InvoiceLineItemsFilter = ({ classes, filters, onChangeFilters }) => {
             label="invoiceLineItem.amountNet"
             min={0}
             value={filterValue("amountNet")}
-            onChange={onChangeFilter("amountNet")}
+            onChange={onChangeDecimalFilter("amountNet")}
           />
         </Grid>
       )}
