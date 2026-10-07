@@ -157,17 +157,17 @@ export const PAYMENT_STATUS = {
   CANCELLED: "3",
 };
 export const PAYMENT_MAIN_STATUS = {
-  NOT_RECONCILIATED: "0",
-  RECONCILIATED: "1",
-  REFUNDED: "2",
-  CANCELLED: "3",
+  NOT_RECONCILIATED: "A_0",
+  RECONCILIATED: "A_1",
+  REFUNDED: "A_2",
+  CANCELLED: "A_3",
 };
 export const EVENT_TYPE = {
-  MESSAGE: "0",
-  STATUS: "1",
-  WARNING: "2",
-  PAYMENT: "3",
-  PAYMENT_ERROR: "4",
+  MESSAGE: "A_0",
+  STATUS: "A_1",
+  WARNING: "A_2",
+  PAYMENT: "A_3",
+  PAYMENT_ERROR: "A_4",
 };
 export const EMPTY_EVENT_MESSAGE = {
   eventType: EVENT_TYPE.MESSAGE,
