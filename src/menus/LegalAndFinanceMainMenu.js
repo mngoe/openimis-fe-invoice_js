@@ -61,14 +61,6 @@ const LegalAndFinanceMainMenu = (props) => {
   ) {
     // RIGHT_SEARCH is shared by HF & HQ staff)
     entries.push({
-      text: formatMessage(props.intl, "invoice", "menu.invoices"),
-      icon: <DoubleArrow />,
-      route: "/invoices",
-    });
-  }
-  if (!!props.rights.filter((r) => r >= RIGHT_BILL_SEARCH && r <= RIGHT_BILL_AMEND).length) {
-    // RIGHT_SEARCH is shared by HF & HQ staff)
-    entries.push({
       text: formatMessage(props.intl, "invoice", "menu.bills"),
       icon: <DoubleArrowFlipped />,
       route: "/bills",
