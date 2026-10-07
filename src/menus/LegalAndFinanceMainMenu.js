@@ -49,6 +49,15 @@ const ROUTE_TO_MENU_CONFIG_KEY = {
 const LegalAndFinanceMainMenu = (props) => {
   const entries = []
 
+  if (!!props.rights.filter((r) => r >= RIGHT_INVOICE_SEARCH && r <= RIGHT_INVOICE_AMEND).length) {
+    // RIGHT_SEARCH is shared by HF & HQ staff)
+    entries.push({
+      text: formatMessage(props.intl, "invoice", "menu.invoices"),
+      icon: <DoubleArrow />,
+      route: "/invoices",
+    });
+  }
+
   const invoiceMenusEnabled = props.modulesManager.getConf(
     "fe-invoice",
     "invoice.menusEnabled",
@@ -59,14 +68,6 @@ const LegalAndFinanceMainMenu = (props) => {
     invoiceMenusEnabled.bills === true &&
     !!props.rights.filter((r) => r >= RIGHT_BILL_SEARCH && r <= RIGHT_BILL_AMEND).length
   ) {
-    // RIGHT_SEARCH is shared by HF & HQ staff)
-    entries.push({
-      text: formatMessage(props.intl, "invoice", "menu.invoices"),
-      icon: <DoubleArrow />,
-      route: "/invoices",
-    });
-  }
-  if (!!props.rights.filter((r) => r >= RIGHT_BILL_SEARCH && r <= RIGHT_BILL_AMEND).length) {
     // RIGHT_SEARCH is shared by HF & HQ staff)
     entries.push({
       text: formatMessage(props.intl, "invoice", "menu.bills"),
