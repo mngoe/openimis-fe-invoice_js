@@ -1,6 +1,6 @@
 import React from "react";
 import { injectIntl } from "react-intl";
-import { formatMessageWithValues, Searcher, withHistory } from "@openimis/fe-core";
+import { formatAmount, formatMessageWithValues, Searcher, withHistory, useModulesManager } from "@openimis/fe-core";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
 import { fetchBillLineItems } from "../actions";
@@ -19,6 +19,7 @@ const BillLineItemsSearcher = ({
   billLineItemsPageInfo,
   billLineItemsTotalCount,
 }) => {
+  const modulesManager = useModulesManager();
   const fetch = (params) => fetchBillLineItems(params);
 
   const headers = () => [
@@ -38,10 +39,10 @@ const BillLineItemsSearcher = ({
     (billItem) => billItem.description,
     (billItem) => billItem.ledgerAccount,
     (billItem) => billItem.quantity,
-    (billItem) => billItem.unitPrice,
-    (billItem) => billItem.discount,
-    (billItem) => billItem.deduction,
-    (billItem) => billItem.amountTotal,
+    (billItem) => formatAmount(modulesManager, intl, billItem.unitPrice),
+    (billItem) => formatAmount(modulesManager, intl, billItem.discount),
+    (billItem) => formatAmount(modulesManager, intl, billItem.deduction),
+    (billItem) => formatAmount(modulesManager, intl, billItem.amountTotal),
     (billItem) => (
       <Tooltip
         title={formatMessageWithValues(intl, "invoice", "billItem.amountNetTooltip", {
@@ -49,7 +50,7 @@ const BillLineItemsSearcher = ({
         })}
         placement="right"
       >
-        <div>{billItem.amountNet}</div>
+        <div>{formatAmount(modulesManager, intl, billItem.amountNet)}</div>
       </Tooltip>
     ),
   ];

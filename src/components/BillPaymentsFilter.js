@@ -7,6 +7,7 @@ import { withTheme, withStyles } from "@material-ui/core/styles";
 
 import { withModulesManager, formatMessage, TextInput, NumberInput, PublishedComponent } from "@openimis/fe-core";
 import { CONTAINS_LOOKUP, DEFUALT_DEBOUNCE_TIME, STARTS_WITH_LOOKUP } from "../constants";
+import { buildDecimalFilter } from "../util/decimalFilter";
 import PaymentInvoiceStatusPicker from "../pickers/PaymentInvoiceStatusPicker";
 
 const styles = (theme) => ({
@@ -34,6 +35,8 @@ const BillPaymentsFilter = ({ intl, classes, filters, onChangeFilters }) => {
       },
     ]);
   };
+  const onChangeDecimalFilter = (filterName) => (value) =>
+    debouncedOnChangeFilters(buildDecimalFilter(filterName, value));
 
   const onChangeStringFilter =
     (filterName, lookup = null) =>
@@ -112,7 +115,7 @@ const BillPaymentsFilter = ({ intl, classes, filters, onChangeFilters }) => {
           label="paymentInvoice.fees"
           min={0}
           value={filterValue("fees")}
-          onChange={onChangeFilter("fees")}
+          onChange={onChangeDecimalFilter("fees")}
         />
       </Grid>
       <Grid item xs={2} className={classes.item}>
@@ -121,7 +124,7 @@ const BillPaymentsFilter = ({ intl, classes, filters, onChangeFilters }) => {
           label="paymentInvoice.amountReceived"
           min={0}
           value={filterValue("amountReceived")}
-          onChange={onChangeFilter("amountReceived")}
+          onChange={onChangeDecimalFilter("amountReceived")}
         />
       </Grid>
       <Grid item xs={2} className={classes.item}>
