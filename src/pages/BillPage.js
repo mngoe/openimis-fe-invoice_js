@@ -1,4 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
+import { bindActionCreators } from "redux";
+import { connect } from "react-redux";
+import { injectIntl } from "react-intl";
+
+import { withTheme, withStyles } from "@material-ui/core/styles";
+import DeleteIcon from "@material-ui/icons/Delete";
+
 import {
   Form,
   Helmet,
@@ -7,19 +14,14 @@ import {
   formatMessageWithValues,
   coreConfirm,
   journalize,
-  decodeId,
+  useModulesManager,
 } from "@openimis/fe-core";
-import { injectIntl } from "react-intl";
-import { bindActionCreators } from "redux";
-import { connect } from "react-redux";
-import { withTheme, withStyles } from "@material-ui/core/styles";
-import { RIGHT_BILL_UPDATE, STATUS } from "../constants";
 import { fetchBill, deleteBill } from "../actions";
+import { STATUS, RIGHT_BILL_SEARCH, DEFAULT, WORKER_VOUCHER_HEAD_PANEL_CONTRIB } from "../constants";
 import BillHeadPanel from "../components/BillHeadPanel";
-import DeleteIcon from "@material-ui/icons/Delete";
-import { getEnumValue } from "../util/enum";
 import BillTabPanel from "../components/BillTabPanel";
 import { ACTION_TYPE } from "../reducer";
+import { getEnumValue } from "../util/enum";
 
 const styles = (theme) => ({
   page: theme.page,
@@ -40,9 +42,11 @@ const BillPage = ({
   mutation,
   journalize,
 }) => {
+  const modulesManager = useModulesManager();
   const [editedBill, setEditedBill] = useState({});
   const [confirmedAction, setConfirmedAction] = useState(() => null);
   const prevSubmittingMutationRef = useRef();
+  const isWorker = modulesManager.getConf("fe-core", "isWorker", DEFAULT.IS_WORKER);
 
   useEffect(() => {
     if (!!billUuid) {
@@ -90,15 +94,17 @@ const BillPage = ({
 
   const actions = [
     !!bill && 
-      getEnumValue(bill?.status) !== STATUS.PAYED && {
+      getEnumValue(bill?.status) !== STATUS.PAID && {
         doIt: openDeleteBillConfirmDialog,
         icon: <DeleteIcon />,
         tooltip: formatMessage(intl, "invoice", "deleteButtonTooltip"),
       },
   ];
 
+  const VoucherHeadPanel = modulesManager.getContribs(WORKER_VOUCHER_HEAD_PANEL_CONTRIB)?.[0];
+
   return (
-    rights.includes(RIGHT_BILL_UPDATE) && (
+    rights.includes(RIGHT_BILL_SEARCH) && (
       <div className={classes.page}>
         <Helmet title={formatMessageWithValues(intl, "bill", "pageTitle", titleParams(bill))} />
         <Form
@@ -108,7 +114,7 @@ const BillPage = ({
           bill={editedBill}
           back={back}
           onChange={onChange}
-          HeadPanel={BillHeadPanel}
+          HeadPanel={isWorker && VoucherHeadPanel ? VoucherHeadPanel : BillHeadPanel}
           Panels={[BillTabPanel]}
           rights={rights}
           actions={actions}

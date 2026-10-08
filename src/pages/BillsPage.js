@@ -1,10 +1,11 @@
 import React, { useEffect } from "react";
-import { Helmet, withModulesManager, formatMessage, clearCurrentPaginationPage } from "@openimis/fe-core";
-import { injectIntl } from "react-intl";
-import { withTheme, withStyles } from "@material-ui/core/styles";
 import { connect, useDispatch } from "react-redux";
+import { injectIntl } from "react-intl";
+
+import { withTheme, withStyles } from "@material-ui/core/styles";
+
+import { Helmet, withModulesManager, formatMessage, clearCurrentPaginationPage } from "@openimis/fe-core";
 import { RIGHT_BILL_SEARCH } from "../constants";
-import { createInvoiceEventMessage } from "../actions";
 import BillSearcher from "../components/BillSearcher";
 
 const styles = (theme) => ({
@@ -15,7 +16,7 @@ const styles = (theme) => ({
 const BILL_SEARCHER_ACTION_CONTRIBUTION_KEY = "invoice.bill.SelectionAction";
 
 const BillsPage = (props) => {
-  const { intl, classes, rights } = props;
+  const { classes, rights } = props;
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -23,6 +24,7 @@ const BillsPage = (props) => {
   }, []);
 
   let actions = [];
+
   return (
     rights.includes(RIGHT_BILL_SEARCH) && (
       <div className={classes.page}>

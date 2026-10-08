@@ -1,10 +1,12 @@
 import React from "react";
 import { injectIntl } from "react-intl";
-import { TextInput, formatMessage } from "@openimis/fe-core";
+import _debounce from "lodash/debounce";
+
 import { Grid } from "@material-ui/core";
 import { withTheme, withStyles } from "@material-ui/core/styles";
+
+import { TextInput, formatMessage } from "@openimis/fe-core";
 import { CONTAINS_LOOKUP, DEFUALT_DEBOUNCE_TIME } from "../constants";
-import _debounce from "lodash/debounce";
 import { defaultFilterStyles } from "../util/styles";
 import InvoiceEventTypePicker from "../pickers/InvoiceEventTypePicker";
 
@@ -12,6 +14,8 @@ const InvoiceEventsFilter = ({ intl, classes, filters, onChangeFilters }) => {
   const debouncedOnChangeFilters = _debounce(onChangeFilters, DEFUALT_DEBOUNCE_TIME);
 
   const filterValue = (filterName) => filters?.[filterName]?.value;
+
+  const filterTextFieldValue = (filterName) => (filters[filterName] ? filters[filterName].value : "");
 
   const onChangeStringFilter =
     (filterName, lookup = null) =>
@@ -48,7 +52,7 @@ const InvoiceEventsFilter = ({ intl, classes, filters, onChangeFilters }) => {
         <TextInput
           module="invoice"
           label="invoiceEvent.message"
-          value={filterValue("message")}
+          value={filterTextFieldValue("message")}
           onChange={onChangeStringFilter("message", CONTAINS_LOOKUP)}
         />
       </Grid>

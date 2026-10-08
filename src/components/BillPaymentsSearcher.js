@@ -1,5 +1,11 @@
 import React, { useRef, useEffect, useState } from "react";
+import { bindActionCreators } from "redux";
+import { connect } from "react-redux";
 import { injectIntl } from "react-intl";
+
+import { IconButton, Tooltip } from "@material-ui/core";
+import DeleteIcon from "@material-ui/icons/Delete";
+
 import {
   formatMessage,
   formatMessageWithValues,
@@ -8,20 +14,15 @@ import {
   withModulesManager,
   coreConfirm,
 } from "@openimis/fe-core";
-import { bindActionCreators } from "redux";
-import { connect } from "react-redux";
-import { fetchPaymentInvoices, deletePaymentInvoice } from "../actions";
+import { fetchBillPayments, deleteBillPayment } from "../actions";
 import {
   DEFAULT_PAGE_SIZE,
   EMPTY_STRING,
   RIGHT_BILL_PAYMENT_DELETE,
   ROWS_PER_PAGE_OPTIONS,
 } from "../constants";
-import BillPaymentsFilter from "./BillPaymentsFilter";
-import PaymentInvoiceStatusPicker from "../pickers/PaymentInvoiceStatusPicker"
-import DeleteIcon from "@material-ui/icons/Delete";
-import { IconButton, Tooltip } from "@material-ui/core";
 import { ACTION_TYPE } from "../reducer";
+import BillPaymentsFilter from "./BillPaymentsFilter";
 
 const BillPaymentsSearcher = ({
   intl,
@@ -29,38 +30,37 @@ const BillPaymentsSearcher = ({
   rights,
   bill,
   setConfirmedAction,
-  deletePaymentInvoice,
   submittingMutation,
   mutation,
   coreConfirm,
   confirmed,
-  fetchPaymentInvoices,
-  fetchingPaymentInvoices,
-  fetchedPaymentInvoices,
-  errorPaymentInvoices,
-  paymentInvoices,
-  paymentInvoicesPageInfo,
-  paymentInvoicesTotalCount,
+  fetchBillPayments,
+  fetchingBillPayments,
+  fetchedBillPayments,
+  errorBillPayments,
+  billPayments,
+  billPaymentsPageInfo,
+  billPaymentsTotalCount,
 }) => {
   const [queryParams, setQueryParams] = useState([]);
-  const [paymentInvoiceToDelete, setPaymentInvoiceToDelete] = useState(null);
-  const [deletedPaymentInvoiceUuids, setDeletedPaymentInvoiceUuids] = useState([]);
+  const [billPaymentToDelete, setBillPaymentToDelete] = useState(null);
+  const [deletedBillPaymentUuids, setDeletedBillPaymentUuids] = useState([]);
   const prevSubmittingMutationRef = useRef();
 
-  useEffect(() => paymentInvoiceToDelete && openDeletePaymentInvoiceConfirmDialog(), [paymentInvoiceToDelete]);
+  useEffect(() => billPaymentToDelete && openDeleteBillPaymentConfirmDialog(), [billPaymentToDelete]);
 
   useEffect(() => {
-    if (paymentInvoiceToDelete && confirmed) {
-      setDeletedPaymentInvoiceUuids([...deletedPaymentInvoiceUuids, paymentInvoiceToDelete.id]);
+    if (billPaymentToDelete && confirmed) {
+      setDeletedBillPaymentUuids([...deletedBillPaymentUuids, billPaymentToDelete.id]);
     }
-    paymentInvoiceToDelete && confirmed !== null && setPaymentInvoiceToDelete(null);
+    billPaymentToDelete && confirmed !== null && setBillPaymentToDelete(null);
   }, [confirmed]);
 
   useEffect(() => {
     if (
       prevSubmittingMutationRef.current &&
       !submittingMutation &&
-      [ACTION_TYPE.CREATE_PAYMENT_INVOICE_WITH_DETAIL, ACTION_TYPE.UPDATE_BILL_PAYMENT].includes(mutation?.actionType)
+      [ACTION_TYPE.CREATE_BILL_PAYMENT, ACTION_TYPE.UPDATE_BILL_PAYMENT].includes(mutation?.actionType)
     ) {
       refetch();
     }
@@ -70,28 +70,28 @@ const BillPaymentsSearcher = ({
     prevSubmittingMutationRef.current = submittingMutation;
   });
 
-  const deletePaymentInvoiceCallback = () =>
-    deletePaymentInvoice(
-      paymentInvoiceToDelete,
-      formatMessageWithValues(intl, "invoice", "paymentInvoice.delete.mutationLabel", {
-        paymentInvoiceLabel: paymentInvoiceToDelete?.label,
-        code: bill?.code,
+  const deleteBillPaymentCallback = () =>
+    deleteBillPayment(
+      billPaymentToDelete,
+      formatMessageWithValues(intl, "invoice", "billPayment.delete.mutationLabel", {
+        billPaymentLabel: billPaymentToDelete?.label,
+        billCode: bill?.code,
       }),
     );
 
-  const openDeletePaymentInvoiceConfirmDialog = () => {
-    setConfirmedAction(() => deletePaymentInvoiceCallback);
+  const openDeleteBillPaymentConfirmDialog = () => {
+    setConfirmedAction(() => deleteBillPaymentCallback);
     coreConfirm(
-      formatMessageWithValues(intl, "invoice", "paymentInvoice.delete.confirm.title", {
-        paymentInvoiceLabel: paymentInvoiceToDelete?.label,
+      formatMessageWithValues(intl, "invoice", "billPayment.delete.confirm.title", {
+        billPaymentLabel: billPaymentToDelete?.label,
       }),
-      formatMessage(intl, "invoice", "paymentInvoice.delete.confirm.message"),
+      formatMessage(intl, "invoice", "billPayment.delete.confirm.message"),
     );
   };
 
-  const onDelete = (paymentInvoice) => setPaymentInvoiceToDelete(paymentInvoice);
+  const onDelete = (billPayment) => setBillPaymentToDelete(billPayment);
 
-  const fetch = (params) => fetchPaymentInvoices(params);
+  const fetch = (params) => fetchBillPayments(params);
 
   const refetch = () => fetch(queryParams);
 
@@ -114,41 +114,36 @@ const BillPaymentsSearcher = ({
   };
 
   const headers = () => [
-    "paymentInvoice.reconciliationStatus.label",
-    "paymentInvoice.codeExt",
-    "paymentInvoice.label",
-    "paymentInvoice.codeTp",
-    "paymentInvoice.codeReceipt",
-    "paymentInvoice.fees",
-    "paymentInvoice.amountReceived",
-    "paymentInvoice.datePayment",
-    "paymentInvoice.paymentOrigin",
-    "paymentInvoice.payerRef",
+    "billPayment.codeExt",
+    "billPayment.label",
+    "billPayment.codeTp",
+    "billPayment.codeReceipt",
+    "billPayment.fees",
+    "billPayment.amountReceived",
+    "billPayment.datePayment",
   ];
 
   const itemFormatters = () => {
     const formatters = [
-      (paymentInvoice) => <PaymentInvoiceStatusPicker value={paymentInvoice?.reconciliationStatus} readOnly />,
-      (paymentInvoice) => paymentInvoice.codeExt,
-      (paymentInvoice) => paymentInvoice.label,
-      (paymentInvoice) => paymentInvoice.codeTp,
-      (paymentInvoice) => paymentInvoice.codeReceipt,
-      (paymentInvoice) => paymentInvoice.fees,
-      (paymentInvoice) => paymentInvoice.amountReceived,
-      (paymentInvoice) =>
-        !!paymentInvoice.datePayment
-          ? formatDateFromISO(modulesManager, intl, paymentInvoice.datePayment)
+      (billPayment) => billPayment.codeExt,
+      (billPayment) => billPayment.label,
+      (billPayment) => billPayment.codeTp,
+      (billPayment) => billPayment.codeReceipt,
+      (billPayment) => billPayment.fees,
+      (billPayment) => billPayment.amountReceived,
+      (billPayment) =>
+        billPayment.datePayment
+          ? formatDateFromISO(modulesManager, intl, billPayment.datePayment)
           : EMPTY_STRING,
-      (paymentInvoice) => paymentInvoice.paymentOrigin,
-      (paymentInvoice) => paymentInvoice.payerRef,
+      (billPayment) => billPayment.paymentOrigin,
     ];
 
     if (rights.includes(RIGHT_BILL_PAYMENT_DELETE)) {
-      formatters.push((paymentInvoice) => (
+      formatters.push((billPayment) => (
         <Tooltip title={formatMessage(intl, "invoice", "deleteButtonTooltip")}>
           <IconButton
-            onClick={() => onDelete(paymentInvoice)}
-            disabled={deletedPaymentInvoiceUuids.includes(paymentInvoice.id)}
+            onClick={() => onDelete(billPayment)}
+            disabled={deletedBillPaymentUuids.includes(billPayment.id)}
           >
             <DeleteIcon />
           </IconButton>
@@ -159,7 +154,6 @@ const BillPaymentsSearcher = ({
   };
 
   const sorts = () => [
-    ["reconciliationStatus", true],
     ["codeExt", true],
     ["label", true],
     ["codeTp", true],
@@ -168,13 +162,12 @@ const BillPaymentsSearcher = ({
     ["amountReceived", true],
     ["datePayment", true],
     ["paymentOrigin", true],
-    ["payerRef", true],
   ];
 
   const defaultFilters = () => ({
     subjectIds: {
       value: bill?.id,
-      filter: `subjectIds: ["${bill?.id}"]`,
+      filter: `id: "${bill?.id}"`,
     },
     isDeleted: {
       value: false,
@@ -182,7 +175,7 @@ const BillPaymentsSearcher = ({
     },
   });
 
-  const isRowDisabled = (_, paymentInvoice) => deletedPaymentInvoiceUuids.includes(paymentInvoice.id);
+  const isRowDisabled = (_, billPayment) => deletedBillPaymentUuids.includes(billPayment.id);
 
   return (
     !!bill?.id && (
@@ -190,13 +183,13 @@ const BillPaymentsSearcher = ({
         module="bill"
         FilterPane={BillPaymentsFilter}
         fetch={fetch}
-        items={paymentInvoices}
-        itemsPageInfo={paymentInvoicesPageInfo}
-        fetchingItems={fetchingPaymentInvoices}
-        fetchedItems={fetchedPaymentInvoices}
-        errorItems={errorPaymentInvoices}
-        tableTitle={formatMessageWithValues(intl, "invoice", "paymentInvoices.searcherResultsTitle", {
-          paymentInvoicesTotalCount,
+        items={billPayments}
+        itemsPageInfo={billPaymentsPageInfo}
+        fetchingItems={fetchingBillPayments}
+        fetchedItems={fetchedBillPayments}
+        errorItems={errorBillPayments}
+        tableTitle={formatMessageWithValues(intl, "invoice", "billPayments.searcherResultsTitle", {
+          billPaymentsTotalCount,
         })}
         filtersToQueryParams={filtersToQueryParams}
         headers={headers}
@@ -214,12 +207,12 @@ const BillPaymentsSearcher = ({
 };
 
 const mapStateToProps = (state) => ({
-  fetchingPaymentInvoices: state.invoice.fetchingPaymentInvoices,
-  fetchedPaymentInvoices: state.invoice.fetchedPaymentInvoices,
-  errorPaymentInvoices: state.invoice.errorPaymentInvoices,
-  paymentInvoices: state.invoice.paymentInvoices,
-  paymentInvoicesPageInfo: state.invoice.paymentInvoicesPageInfo,
-  paymentInvoicesTotalCount: state.invoice.paymentInvoicesTotalCount,
+  fetchingBillPayments: state.invoice.fetchingBillPayments,
+  fetchedBillPayments: state.invoice.fetchedBillPayments,
+  errorBillPayments: state.invoice.errorBillPayments,
+  billPayments: state.invoice.billPayments,
+  billPaymentsPageInfo: state.invoice.billPaymentsPageInfo,
+  billPaymentsTotalCount: state.invoice.billPaymentsTotalCount,
   submittingMutation: state.invoice.submittingMutation,
   mutation: state.invoice.mutation,
   confirmed: state.core.confirmed,
@@ -228,8 +221,8 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => {
   return bindActionCreators(
     {
-      fetchPaymentInvoices,
-      deletePaymentInvoice,
+      fetchBillPayments,
+      deleteBillPayment,
       coreConfirm
     },
     dispatch,

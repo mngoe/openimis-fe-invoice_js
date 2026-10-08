@@ -1,19 +1,23 @@
 import React from "react";
 import { injectIntl } from "react-intl";
-import { formatMessage, TextInput, NumberInput, PublishedComponent } from "@openimis/fe-core";
+import _debounce from "lodash/debounce";
+
 import { Grid } from "@material-ui/core";
 import { withTheme, withStyles } from "@material-ui/core/styles";
+
+import { formatMessage, TextInput, NumberInput, PublishedComponent } from "@openimis/fe-core";
 import { CONTAINS_LOOKUP, DEFUALT_DEBOUNCE_TIME } from "../constants";
-import InvoiceStatusPicker from "../pickers/InvoiceStatusPicker";
-import SubjectTypePicker from "../pickers/SubjectTypePicker";
-import ThirdpartyTypePicker from "../pickers/ThirdpartyTypePicker";
-import _debounce from "lodash/debounce";
 import { defaultFilterStyles } from "../util/styles";
+import InvoiceStatusPicker from "../pickers/InvoiceStatusPicker";
+import ThirdpartyTypePicker from "../pickers/ThirdpartyTypePicker";
+import SubjectTypePicker from "../pickers/SubjectTypePicker";
 
 const InvoiceFilter = ({ intl, classes, filters, onChangeFilters }) => {
   const debouncedOnChangeFilters = _debounce(onChangeFilters, DEFUALT_DEBOUNCE_TIME);
 
   const filterValue = (filterName) => filters?.[filterName]?.value;
+
+  const filterTextFieldValue = (filterName) => (filters[filterName] ? filters[filterName].value : "");
 
   const onChangeFilter = (filterName) => (value) => {
     debouncedOnChangeFilters([
@@ -69,7 +73,7 @@ const InvoiceFilter = ({ intl, classes, filters, onChangeFilters }) => {
         <TextInput
           module="invoice"
           label="invoice.code"
-          value={filterValue("code")}
+          value={filterTextFieldValue("code")}
           onChange={onChangeStringFilter("code", CONTAINS_LOOKUP)}
         />
       </Grid>

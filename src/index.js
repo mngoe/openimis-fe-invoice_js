@@ -4,6 +4,8 @@ import flatten from "flat";
 import LegalAndFinanceMainMenu from "./menus/LegalAndFinanceMainMenu";
 import InvoicesPage from "./pages/InvoicesPage";
 import InvoiceStatusPicker from "./pickers/InvoiceStatusPicker";
+import SubjectTypePickerBill from "./pickers/SubjectTypePickerBill";
+import ThirdPartyTypePickerBill from "./pickers/ThirdPartyTypePickerBill";
 import InvoicePage from "./pages/InvoicePage";
 import BillsPage from "./pages/BillsPage";
 import BillPage from "./pages/BillPage";
@@ -13,6 +15,7 @@ import { InvoiceEventsTabLabel, InvoiceEventsTabPanel } from "./components/Invoi
 import { BillLineItemsTabLabel, BillLineItemsTabPanel } from "./components/BillLineItemsTab";
 import { BillPaymentsTabLabel, BillPaymentsTabPanel } from "./components/BillPaymentsTab";
 import { BillEventsTabLabel, BillEventsTabPanel } from "./components/BillEventsTab";
+import { getSubjectAndThirdpartyTypePicker } from "./util/subject-and-thirdparty-picker";
 
 const ROUTE_INVOICES = "invoices";
 const ROUTE_INVOICE = "invoices/invoice";
@@ -32,7 +35,10 @@ const DEFAULT_CONFIG = {
   "refs": [
     { key: "invoice.route.invoice", ref: ROUTE_INVOICE },
     { key: "invoice.InvoiceStatusPicker", ref: InvoiceStatusPicker },
+    { key: "invoice.SubjectTypePickerBill", ref: SubjectTypePickerBill },
+    { key: "invoice.ThirdPartyTypePickerBill", ref: ThirdPartyTypePickerBill },
     { key: "bill.route.bill", ref: ROUTE_BILL },
+    { key: "bill.util.getSubjectAndThirdpartyTypePicker", ref: getSubjectAndThirdpartyTypePicker },
   ],
   "invoice.TabPanel.label": [InvoiceLineItemsTabLabel, InvoicePaymentsTabLabel, InvoiceEventsTabLabel],
   "invoice.TabPanel.panel": [InvoiceLineItemsTabPanel, InvoicePaymentsTabPanel, InvoiceEventsTabPanel],

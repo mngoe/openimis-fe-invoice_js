@@ -343,8 +343,8 @@ function reducer(
           ...bill,
           id: decodeId(bill.id),
           status: getEnumValue(bill?.status),
-          subjectTypeNameLabel: (bill?.subjectTypeName).replace(/\s/g, ""),
-          thirdpartyTypeNameLabel: (bill?.thirdpartyTypeName).replace(/\s/g, ""),
+          subjectTypeNameLabel: (bill?.subjectTypeName)?.replace(/\s/g, ""),
+          thirdpartyTypeNameLabel: (bill?.thirdpartyTypeName)?.replace(/\s/g, ""),
         }))?.[0],
         errorBill: null,
       };

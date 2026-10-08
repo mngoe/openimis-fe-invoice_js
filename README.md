@@ -33,6 +33,9 @@ It is dedicated to be deployed as a module of [openimis-fe_js](https://github.co
 
 ## Published Components
 * `invoice.InvoiceStatusPicker` picker for Invoice Status
+* `invoice.SubjectTypePickerBill` picker for bill Subject Type
+* `invoice.ThirdPartyTypePickerBill` picker for bill Subject Type
+* `bill.util.getSubjectAndThirdpartyTypePicker` util function for getting subject and thirdparty type picker
 
 ## Dispatched Redux Actions
 * `INVOICE_INVOICES_{REQ|RESP|ERR}` fetching Invoices (as triggered by the searcher)
