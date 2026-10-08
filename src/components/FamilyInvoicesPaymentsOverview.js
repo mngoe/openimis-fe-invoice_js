@@ -2,7 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { injectIntl } from "react-intl";
 
-import { Grid, Paper, Divider, Typography, CircularProgress, IconButton, Tooltip } from "@material-ui/core";
+import { Grid, Paper, Divider, Typography, CircularProgress, IconButton, Tooltip, FormControlLabel, Checkbox } from "@material-ui/core";
 import OpenInNewIcon from "@material-ui/icons/OpenInNew";
 import { withTheme, withStyles } from "@material-ui/core/styles";
 
@@ -25,6 +25,9 @@ import { RIGHT_INVOICE_SEARCH } from "../constants";
 const styles = (theme) => ({
   paper: theme.paper.paper,
   paperHeader: theme.paper.header,
+  headerTopRow: {
+    width: "100%",
+  },
   tableTitle: theme.table.title,
   loadingContainer: {
     minHeight: 120,
@@ -65,6 +68,7 @@ class FamilyInvoicesPaymentsOverview extends PagedDataHandler {
       ...this.state,
       expandedInvoiceId: null,
       selectedInvoiceId: null,
+      showDeletedInvoices: false,
     };
     this.rowsPerPageOptions = props.modulesManager.getConf(
       "fe-invoice",
@@ -108,7 +112,11 @@ class FamilyInvoicesPaymentsOverview extends PagedDataHandler {
     const family = this.resolveFamily(props);
     const headInsureeId = this.decodeMaybe(this.getHeadInsureeId(family));
     if (!headInsureeId) return null;
-    return [`headInsureeId: "${headInsureeId}"`];
+    const params = [`headInsureeId: "${headInsureeId}"`];
+    if (this.state?.showDeletedInvoices) {
+      params.push("showDeleted: true");
+    }
+    return params;
   };
 
   familyChanged = (prevProps) => {
@@ -132,6 +140,23 @@ class FamilyInvoicesPaymentsOverview extends PagedDataHandler {
     const prevKey = prevProps ? this.globalsParamsKey(this.buildParams(prevProps)) : null;
     if (prevKey === paramsKey && this.props.familyInvoicePaymentGlobalsParamsKey === paramsKey) return;
     this.props.fetchFamilyInvoicePaymentGlobals(params, paramsKey);
+  };
+
+  toggleShowDeletedInvoices = () => {
+    this.setState(
+      (prevState) => ({
+        showDeletedInvoices: !prevState.showDeletedInvoices,
+        page: 0,
+        afterCursor: null,
+        beforeCursor: null,
+        expandedInvoiceId: null,
+        selectedInvoiceId: null,
+      }),
+      () => {
+        this.query();
+        this.fetchGlobalsIfNeeded();
+      },
+    );
   };
 
   onToggleInvoiceDetails = async (selectedRows) => {
@@ -296,15 +321,25 @@ class FamilyInvoicesPaymentsOverview extends PagedDataHandler {
 
     return (
       <Paper className={this.props.classes.paper}>
-        <Grid container alignItems="center" justifyContent="space-between" className={this.props.classes.paperHeader}>
+        <Grid container direction="column" className={this.props.classes.paperHeader}>
           <Grid item>
-            <Typography className={this.props.classes.tableTitle}>
-              {formatMessageWithValues(this.props.intl, "invoice", "familyInvoicesPayments.title", {
-                count: invoiceRowsTotalCount,
-              })}
-            </Typography>
+            <Grid container alignItems="center" justifyContent="space-between" className={this.props.classes.headerTopRow}>
+              <Grid item>
+                <Typography className={this.props.classes.tableTitle}>
+                  {formatMessageWithValues(this.props.intl, "invoice", "familyInvoicesPayments.title", {
+                    count: invoiceRowsTotalCount,
+                  })}
+                </Typography>
+              </Grid>
+              <Grid item>
+                <FormControlLabel
+                  control={<Checkbox color="primary" checked={!!this.state.showDeletedInvoices} onChange={this.toggleShowDeletedInvoices} />}
+                  label={formatMessage(this.props.intl, null, "showDeleted")}
+                />
+              </Grid>
+            </Grid>
           </Grid>
-          <Grid item xs={7}>
+          <Grid item>
             <Grid container className={this.props.classes.summaryRow}>
               <Grid item className={this.props.classes.summaryCell}>
                 <Typography className={this.props.classes.summaryText}>

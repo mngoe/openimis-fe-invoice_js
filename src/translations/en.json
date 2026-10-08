@@ -271,6 +271,7 @@
   "invoice.familyInvoicesPayments.totalInvoiceAmount": "Total Invoices",
   "invoice.familyInvoicesPayments.totalPaidAmount": "Total Paid",
   "invoice.familyInvoicesPayments.globalBalance": "Global Balance",
+  "invoice.familyInvoicesPayments.showDeleted": "Show deleted invoices",
   "invoice.familyInvoicesPayments.invoicePaymentsSectionTitle": "Invoice {invoiceNumber} Payments ({count})",
   "invoice.familyInvoicesPayments.invoicePaymentDate": "Payment Date",
   "invoice.familyInvoicesPayments.invoicePaymentAmount": "Payment Amount",
