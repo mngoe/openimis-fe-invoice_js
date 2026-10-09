@@ -46,6 +46,7 @@
     "note": "Note",
     "terms": "Terms",
     "paymentReference": "Payment Reference",
+    "showDeleted": "Show deleted invoices",
     "delete": {
       "confirm": {
         "title": "Delete {code}?",
