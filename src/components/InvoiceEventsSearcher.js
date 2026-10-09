@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import { injectIntl } from "react-intl";
-import { formatMessageWithValues, Searcher } from "@openimis/fe-core";
+import { formatMessageWithValues, formatDateFromISO, Searcher, withModulesManager } from "@openimis/fe-core";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
 import { fetchInvoiceEvents } from "../actions";
@@ -11,6 +11,7 @@ import { ACTION_TYPE } from "../reducer";
 
 const InvoiceEventsSearcher = ({
   intl,
+  modulesManager,
   invoice,
   submittingMutation,
   mutation,
@@ -61,10 +62,11 @@ const InvoiceEventsSearcher = ({
     return queryParams;
   };
 
-  const headers = () => ["invoiceEvent.eventType.label", "invoiceEvent.message"];
+  const headers = () => ["invoiceEvent.eventType.label", "invoiceEvent.dateCreatedAt", "invoiceEvent.message"];
 
   const itemFormatters = () => [
     (invoiceEvent) => <InvoiceEventTypePicker value={invoiceEvent?.eventType} readOnly />,
+    (invoiceEvent) => formatDateFromISO(modulesManager, intl, invoiceEvent?.dateCreated),
     (invoiceEvent) => invoiceEvent.message,
   ];
 
@@ -124,4 +126,4 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => bindActionCreators({ fetchInvoiceEvents }, dispatch);
 
-export default injectIntl(connect(mapStateToProps, mapDispatchToProps)(InvoiceEventsSearcher));
+export default withModulesManager(injectIntl(connect(mapStateToProps, mapDispatchToProps)(InvoiceEventsSearcher)));

@@ -124,7 +124,8 @@
       "PAYMENT": "Payment",
       "PAYMENT_ERROR": "Payment Error"
     },
-    "message": "Message"
+    "message": "Message",
+    "dateCreatedAt": "Created at"
   },
   "invoiceEventMessage": {
     "create": {
