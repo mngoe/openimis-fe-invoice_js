@@ -178,7 +178,7 @@ const InvoiceSearcher = ({
   const onDelete = (invoice) => setInvoiceToDelete(invoice);
 
   const isRowDisabled = (_, invoice) => deletedInvoiceUuids.includes(invoice.id);
-  const isDeletedInvoice = (invoice) => !!invoice?.dateValidTo || !!invoice?.validityTo || !!invoice?.isDeleted;
+  const isDeletedInvoice = (invoice) => !!invoice?.isDeleted;
   const filterValue = (filterName) => appliedFilters?.[filterName]?.value;
   const rowSecondaryHighlighted = (invoice) => filterValue("isDeleted") !== false && isDeletedInvoice(invoice);
 
