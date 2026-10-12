@@ -2,7 +2,7 @@ import React from "react";
 import { injectIntl } from "react-intl";
 import _debounce from "lodash/debounce";
 
-import { Grid } from "@material-ui/core";
+import { Grid, FormControlLabel, Checkbox } from "@material-ui/core";
 import { withTheme, withStyles } from "@material-ui/core/styles";
 
 import { formatMessage, TextInput, NumberInput, PublishedComponent } from "@openimis/fe-core";
@@ -51,6 +51,17 @@ const InvoiceFilter = ({ intl, classes, filters, onChangeFilters }) => {
             },
           ]);
     };
+
+  const onToggleShowDeleted = (event) => {
+    const checked = !!event?.target?.checked;
+    onChangeFilters([
+      {
+        id: "isDeleted",
+        value: checked,
+        filter: `isDeleted: ${checked}`,
+      },
+    ]);
+  };
 
   return (
     <Grid container className={classes.form}>
@@ -113,6 +124,12 @@ const InvoiceFilter = ({ intl, classes, filters, onChangeFilters }) => {
           min={0}
           value={filterValue("amountTotal")}
           onChange={onChangeDecimalFilter("amountTotal")}
+        />
+      </Grid>
+      <Grid item xs={2} className={classes.item}>
+        <FormControlLabel
+          control={<Checkbox color="primary" checked={!!filterValue("isDeleted")} onChange={onToggleShowDeleted} />}
+          label={<span style={{ whiteSpace: "nowrap" }}>{formatMessage(intl, null, "showDeleted")}</span>}
         />
       </Grid>
     </Grid>
