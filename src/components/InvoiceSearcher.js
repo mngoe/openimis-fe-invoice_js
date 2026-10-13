@@ -52,6 +52,13 @@ const InvoiceSearcher = ({
 }) => {
   const [invoiceToDelete, setInvoiceToDelete] = useState(null);
   const [deletedInvoiceUuids, setDeletedInvoiceUuids] = useState([]);
+  const defaultFilters = () => ({
+    isDeleted: {
+      value: false,
+      filter: "isDeleted: false",
+    },
+  });
+  const [appliedFilters, setAppliedFilters] = useState(defaultFilters());
   const prevSubmittingMutationRef = useRef();
 
   useEffect(() => invoiceToDelete && openDeleteInvoiceConfirmDialog(), [invoiceToDelete]);
@@ -171,13 +178,28 @@ const InvoiceSearcher = ({
   const onDelete = (invoice) => setInvoiceToDelete(invoice);
 
   const isRowDisabled = (_, invoice) => deletedInvoiceUuids.includes(invoice.id);
+  const isDeletedInvoice = (invoice) => !!invoice?.isDeleted;
+  const filterValue = (filterName) => appliedFilters?.[filterName]?.value;
+  const rowSecondaryHighlighted = (invoice) => isDeletedInvoice(invoice) && filterValue("isDeleted") !== false;
 
-  const defaultFilters = () => ({
-    isDeleted: {
-      value: false,
-      filter: "isDeleted: false",
-    },
-  });
+  const onChangeFilters = (filters) => {
+    setAppliedFilters((prevFilters) => {
+      if (!filters) return prevFilters;
+
+      if (!Array.isArray(filters)) {
+        return { ...prevFilters, ...filters };
+      }
+
+      return filters.reduce((nextFilters, currentFilter) => {
+        if (!currentFilter?.id) return nextFilters;
+        nextFilters[currentFilter.id] = {
+          value: currentFilter?.value ?? null,
+          filter: currentFilter?.filter ?? null,
+        };
+        return nextFilters;
+      }, { ...prevFilters });
+    });
+  };
 
   return (
     <Searcher
@@ -202,6 +224,8 @@ const InvoiceSearcher = ({
       rowIdentifier={rowIdentifier}
       onDoubleClick={onDoubleClick}
       defaultFilters={defaultFilters()}
+      onChangeFilters={onChangeFilters}
+      rowSecondaryHighlighted={rowSecondaryHighlighted}
       rowDisabled={isRowDisabled}
       rowLocked={isRowDisabled}
     />

@@ -54,11 +54,21 @@ const InvoiceFilter = ({ intl, classes, filters, onChangeFilters }) => {
 
   const onToggleShowDeleted = (event) => {
     const checked = !!event?.target?.checked;
+    if (checked) {
+      onChangeFilters([
+        {
+          id: "isDeleted",
+          value: null,
+          filter: null,
+        },
+      ]);
+      return;
+    }
     onChangeFilters([
       {
         id: "isDeleted",
-        value: checked,
-        filter: `isDeleted: ${checked}`,
+        value: false,
+        filter: "isDeleted: false",
       },
     ]);
   };
@@ -128,7 +138,7 @@ const InvoiceFilter = ({ intl, classes, filters, onChangeFilters }) => {
       </Grid>
       <Grid item xs={2} className={classes.item}>
         <FormControlLabel
-          control={<Checkbox color="primary" checked={!!filterValue("isDeleted")} onChange={onToggleShowDeleted} />}
+          control={<Checkbox color="primary" checked={filterValue("isDeleted") !== false} onChange={onToggleShowDeleted} />}
           label={<span style={{ whiteSpace: "nowrap" }}>{formatMessage(intl, null, "showDeleted")}</span>}
         />
       </Grid>
