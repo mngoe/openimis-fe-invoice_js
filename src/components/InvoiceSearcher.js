@@ -180,7 +180,7 @@ const InvoiceSearcher = ({
   const isRowDisabled = (_, invoice) => deletedInvoiceUuids.includes(invoice.id);
   const isDeletedInvoice = (invoice) => !!invoice?.isDeleted;
   const filterValue = (filterName) => appliedFilters?.[filterName]?.value;
-  const rowSecondaryHighlighted = (invoice) => filterValue("isDeleted") !== false && isDeletedInvoice(invoice);
+  const rowSecondaryHighlighted = (invoice) => isDeletedInvoice(invoice);
 
   const onChangeFilters = (filters) => {
     setAppliedFilters(filters);
