@@ -180,10 +180,25 @@ const InvoiceSearcher = ({
   const isRowDisabled = (_, invoice) => deletedInvoiceUuids.includes(invoice.id);
   const isDeletedInvoice = (invoice) => !!invoice?.isDeleted;
   const filterValue = (filterName) => appliedFilters?.[filterName]?.value;
-  const rowSecondaryHighlighted = (invoice) => isDeletedInvoice(invoice);
+  const rowSecondaryHighlighted = (invoice) => isDeletedInvoice(invoice) && filterValue("isDeleted") !== false;
 
   const onChangeFilters = (filters) => {
-    setAppliedFilters(filters);
+    setAppliedFilters((prevFilters) => {
+      if (!filters) return prevFilters;
+
+      if (!Array.isArray(filters)) {
+        return { ...prevFilters, ...filters };
+      }
+
+      return filters.reduce((nextFilters, currentFilter) => {
+        if (!currentFilter?.id) return nextFilters;
+        nextFilters[currentFilter.id] = {
+          value: currentFilter?.value ?? null,
+          filter: currentFilter?.filter ?? null,
+        };
+        return nextFilters;
+      }, { ...prevFilters });
+    });
   };
 
   return (
