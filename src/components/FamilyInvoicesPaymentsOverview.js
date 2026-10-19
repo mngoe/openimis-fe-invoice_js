@@ -188,6 +188,7 @@ class FamilyInvoicesPaymentsOverview extends PagedDataHandler {
   };
 
   invoiceRowIdentifier = (invoiceRow) => invoiceRow?.invoiceId || invoiceRow?.invoiceCode;
+  rowSecondaryHighlighted = (invoiceRow) => invoiceRow?.isDeleted === true;
 
   invoiceHeaders = [
     "invoice.familyInvoicesPayments.coveredPeriod",
@@ -379,6 +380,7 @@ class FamilyInvoicesPaymentsOverview extends PagedDataHandler {
               headers={this.invoiceHeaders}
               itemFormatters={this.invoiceFormatters}
               itemIdentifier={this.invoiceRowIdentifier}
+              rowSecondaryHighlighted={this.rowSecondaryHighlighted}
               items={sortedInvoiceRows}
               error={invoiceRowsError}
               withSelection="single"
