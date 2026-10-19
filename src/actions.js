@@ -486,6 +486,7 @@ export function fetchFamilyInvoicePaymentOverview(params) {
         invoiceBalance
         lastPayment
         hasInvoicePayments
+        isDeleted
       }
     }
   }`;
